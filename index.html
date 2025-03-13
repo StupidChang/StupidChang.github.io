@@ -95,6 +95,9 @@
                         // console.log("first...");
                         $("#book").turn("disable", true); // 禁止翻頁，防止再次操作
                     },
+                    turned: function(event, page, view) {
+                        $(".page").css("opacity", "1"); // 確保所有頁面都可見
+                    }
                 }
             });
 
