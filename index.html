@@ -45,12 +45,23 @@
             font-size: 24px;
             font-weight: bold;
             background: linear-gradient(135deg, #eed881, #ff940b) !important;
+            backface-visibility: hidden; /* 防止翻頁背面透明 */
         }
         .instructions {
             margin-top: 20px;
             font-size: 18px;
             color: #555;
         }
+        #coverPage {
+            /* background-color: aqua !important; */
+            outline: 4px double black; /* 雙層邊框 */
+            /* box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); 黑色陰影增加邊框層次感 */
+            padding-left: 150px;
+            padding-right: 150px;
+            padding-top: 100px;
+            padding-bottom: 100px;
+        }
+
     </style>
 </head>
 <body>
@@ -60,16 +71,21 @@
         <div class="book-container ">
             <div class="book rounded-3" id="book">
                 <div class="page" id="prizePage"></div>
-                <div class="page" id="coverPage">撕開看看</div>
+                <div class="page border-dark">
+                    <div id="coverPage">
+                        StupidChang抽獎店
+                    </div>
+                    
+                </div>
             </div>
         </div>
     </div>
     
     <!-- 引入 jQuery 和 Turn.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- <script src="https://www.turnjs.com/lib/turn.min.js"></script> -->
+    <script src="./turn.min.js"></script>  
     <!-- <script src='http://www.turnjs.com/lib/turn.min.js'></script>  -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script> -->
 
     <script>
         $(document).ready(function() {
@@ -87,6 +103,7 @@
                 gradients: true,
                 acceleration: true,
                 corners: "tl", // 只允許左上角翻頁
+                peel: "tl", // 只允許左上角翻頁
                 elevation: 50,
                 pages: 2, // 確保至少有三頁，以強制第一頁為空白，從第二頁開始翻
                 page: 2,
@@ -95,16 +112,8 @@
                         // console.log("first...");
                         $("#book").turn("disable", true); // 禁止翻頁，防止再次操作
                     },
-                    turned: function(event, page, view) {
-                        $(".page").css("opacity", "1"); // 確保所有頁面都可見
-                    }
                 }
             });
-
-             // 強制讓第一頁可見
-            setTimeout(function() {
-                $(".page").css("opacity", "1");
-            }, 100);
 
         });
     </script>
