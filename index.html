@@ -44,8 +44,27 @@
             align-items: center;
             font-size: 24px;
             font-weight: bold;
+            /* background: linear-gradient(135deg, #eed881, #ff940b) !important; */
+            backface-visibility: hidden; /* 防止翻頁背面透明 */
+            background-image: url('./card-back.svg'); /* 引入 card-back.svg */
+            background-size: cover; /* 讓圖片覆蓋整個區域 */
+            background-position: center; /* 讓圖片置中 */
+            color: #f8f8f8;
+        }
+        .page2 {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
             background: linear-gradient(135deg, #eed881, #ff940b) !important;
             backface-visibility: hidden; /* 防止翻頁背面透明 */
+            /* background-image: url('./card-back.svg'); 引入 card-back.svg */
+            /* background-size: cover; 讓圖片覆蓋整個區域 */
+            /* background-position: center; 讓圖片置中 */
+            color: #f8f8f8;
         }
         .instructions {
             margin-top: 20px;
@@ -55,6 +74,9 @@
         #coverPage {
             /* background-color: aqua !important; */
             outline: 4px double black; /* 雙層邊框 */
+            background-image: url('./card-back.svg'); /* 只在封面使用 */
+            background-size: cover;
+            background-position: center;
             /* box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); 黑色陰影增加邊框層次感 */
             padding-left: 150px;
             padding-right: 150px;
@@ -79,6 +101,18 @@
                 </div>
             </div>
         </div>
+
+        <div class="book-container" style="padding-top: 50px;">
+            <div class="book rounded-3" id="bookRight">
+                <div class="page border-dark">
+                    <!-- <div id="coverPage">
+                        StupidChang抽獎店
+                    </div> -->
+                    
+                </div>
+                <div class="page2" id="prizePageRight"></div>
+            </div>
+        </div>
     </div>
     
     <!-- 引入 jQuery 和 Turn.js -->
@@ -92,6 +126,7 @@
             let prizes = ["🎉 大獎！", "🥈 二獎", "🥉 三獎", "🎁 安慰獎"];
             let randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
             $('#prizePage').text(randomPrize);
+            $('#prizePageRight').text(randomPrize);
             
             console.log("test...");
 
@@ -111,6 +146,26 @@
                     first: function(event, page, view) {
                         // console.log("first...");
                         $("#book").turn("disable", true); // 禁止翻頁，防止再次操作
+                    },
+                }
+            });
+
+            $('#bookRight').turn({
+                width: 600,
+                height: 300,
+                autoCenter: true,
+                display: 'single',
+                gradients: true,
+                acceleration: true,
+                corners: "tr", // 只允許左上角翻頁
+                peel: "tr", // 只允許左上角翻頁
+                elevation: 50,
+                pages: 1, // 確保至少有三頁，以強制第一頁為空白，從第二頁開始翻
+                page: 1,
+                when: {
+                    last: function(event, page, view) {
+                        // console.log("first...");
+                        $("#bookRight").turn("disable", true); // 禁止翻頁，防止再次操作
                     },
                 }
             });
