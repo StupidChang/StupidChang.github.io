@@ -59,12 +59,12 @@
             align-items: center;
             font-size: 24px;
             font-weight: bold;
-            background: linear-gradient(135deg, #eed881, #ff940b) !important;
+            /* background: linear-gradient(135deg, #eed881, #ff940b) !important; */
             backface-visibility: hidden; /* 防止翻頁背面透明 */
-            /* background-image: url('./card-back.svg'); 引入 card-back.svg */
-            /* background-size: cover; 讓圖片覆蓋整個區域 */
-            /* background-position: center; 讓圖片置中 */
-            color: #f8f8f8;
+            background-image: url('./card-silver.png'); /*引入 card-back.svg */
+            background-size: cover; /* 讓圖片覆蓋整個區域 */
+            background-position: center; /* 讓圖片置中 */
+            color: #464646;
         }
         .instructions {
             margin-top: 20px;
@@ -92,11 +92,11 @@
         <p class="instructions">請點擊或拖動左上角來撕開籤，看看你中了什麼獎品！</p>
         <div class="book-container ">
             <div class="book rounded-3" id="book">
-                <div class="page" id="prizePage"></div>
+                <div class="page2" id="prizePage"></div>
                 <div class="page border-dark">
-                    <div id="coverPage">
+                    <!-- <div id="coverPage">
                         StupidChang抽獎店
-                    </div>
+                    </div> -->
                     
                 </div>
             </div>
