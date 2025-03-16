@@ -6,7 +6,8 @@
     <!-- CSS only -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="./abc.min.js"></script>
     <title>一番賞抽獎 - 撕籤動畫</title>
     <style>
         body {
@@ -114,63 +115,10 @@
             </div>
         </div>
     </div>
+
+    <!-- 撕開音效 -->
+    <audio id="tearSound" src="./paper-ripping-dechirure-de-papier-audio-not-edited-18466.mp3"></audio>
     
-    <!-- 引入 jQuery 和 Turn.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="./turn.min.js"></script>  
-    <!-- <script src='http://www.turnjs.com/lib/turn.min.js'></script>  -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script> -->
-
-    <script>
-        $(document).ready(function() {
-            let prizes = ["🎉 大獎！", "🥈 二獎", "🥉 三獎", "🎁 安慰獎"];
-            let randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
-            $('#prizePage').text(randomPrize);
-            $('#prizePageRight').text(randomPrize);
-            
-            console.log("test...");
-
-            $('#book').turn({
-                width: 600,
-                height: 300,
-                autoCenter: true,
-                display: 'single',
-                gradients: true,
-                acceleration: true,
-                corners: "tl", // 只允許左上角翻頁
-                peel: "tl", // 只允許左上角翻頁
-                elevation: 50,
-                pages: 2, // 確保至少有三頁，以強制第一頁為空白，從第二頁開始翻
-                page: 2,
-                when: {
-                    first: function(event, page, view) {
-                        // console.log("first...");
-                        $("#book").turn("disable", true); // 禁止翻頁，防止再次操作
-                    },
-                }
-            });
-
-            $('#bookRight').turn({
-                width: 600,
-                height: 300,
-                autoCenter: true,
-                display: 'single',
-                gradients: true,
-                acceleration: true,
-                corners: "tr", // 只允許左上角翻頁
-                peel: "tr", // 只允許左上角翻頁
-                elevation: 50,
-                pages: 1, // 確保至少有三頁，以強制第一頁為空白，從第二頁開始翻
-                page: 1,
-                when: {
-                    last: function(event, page, view) {
-                        // console.log("first...");
-                        $("#bookRight").turn("disable", true); // 禁止翻頁，防止再次操作
-                    },
-                }
-            });
-
-        });
-    </script>
+    <script src="dist/script-obfuscated.js"></script>
 </body>
 </html>
