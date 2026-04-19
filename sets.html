@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>獎品套組 — 水晶一番賞</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ===== SET DETAIL CARDS ===== */
+    .set-section {
+      padding: 5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .set-section:last-child { border-bottom: none; }
+    .set-section:nth-child(even) { background: var(--bg-secondary); }
+
+    .set-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    /* Left panel */
+    .set-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: sticky;
+      top: 80px;
+    }
+    .set-art {
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .set-art::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, var(--bg-card) 100%);
+    }
+    .set-info { padding: 1.25rem; }
+    .set-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .set-series {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+    }
+    .badge-available {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.18rem 0.55rem;
+      background: rgba(74,222,128,0.12);
+      border: 1px solid rgba(74,222,128,0.25);
+      border-radius: var(--radius);
+      font-size: 0.68rem;
+      color: #4ade80;
+      font-weight: 500;
+    }
+    .badge-soldout {
+      display: inline-block;
+      padding: 0.18rem 0.55rem;
+      background: rgba(148,163,184,0.1);
+      border: 1px solid rgba(148,163,184,0.2);
+      border-radius: var(--radius);
+      font-size: 0.68rem;
+      color: #94a3b8;
+    }
+    .badge-upcoming {
+      display: inline-block;
+      padding: 0.18rem 0.55rem;
+      background: rgba(107,79,154,0.15);
+      border: 1px solid rgba(107,79,154,0.3);
+      border-radius: var(--radius);
+      font-size: 0.68rem;
+      color: #9b7fcb;
+    }
+    .set-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .stat {
+      flex: 1;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 0.75rem;
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      line-height: 1;
+      margin-bottom: 0.2rem;
+    }
+    .stat-lbl {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* Progress bar */
+    .progress-wrap { margin-bottom: 1rem; }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    .progress-bar {
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent-gold-dim), var(--accent-gold));
+      transition: width 0.6s ease;
+    }
+
+    .set-note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* Right panel — prizes */
+    .prizes-head {
+      margin-bottom: 1.5rem;
+    }
+    .prizes-head h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+    .prizes-head p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .prize-tier-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s;
+    }
+    .prize-tier-block:hover { border-color: var(--border-light); }
+
+    .tier-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .tier-meta { flex: 1; }
+    .tier-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.1rem;
+    }
+    .tier-subtitle {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+    .tier-count {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .tier-count span { color: var(--accent-gold); font-weight: 600; }
+    .tier-toggle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      transition: transform 0.25s;
+      flex-shrink: 0;
+    }
+    .tier-header.open .tier-toggle { transform: rotate(180deg); }
+
+    .tier-items {
+      border-top: 1px solid var(--border);
+      padding: 0.75rem 1.25rem;
+      display: none;
+    }
+    .tier-items.open { display: block; }
+    .tier-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.83rem;
+    }
+    .tier-item:last-child { border-bottom: none; }
+    .item-name { color: var(--text-primary); flex: 1; }
+    .item-desc { font-size: 0.75rem; color: var(--text-muted); }
+    .item-qty {
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      min-width: 40px;
+      text-align: right;
+    }
+
+    /* Coming Soon */
+    .coming-soon-card {
+      background: var(--bg-card);
+      border: 1px dashed var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 4rem 2rem;
+      text-align: center;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .coming-soon-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+    .coming-soon-card h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    .coming-soon-card p { font-size: 0.85rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="brand-crystal">
+      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" class="nav-crystal-svg">
+        <path d="M16 2L28 16L16 30L4 16Z" fill="rgba(200,168,75,0.14)" stroke="#c8a84b" stroke-width="1.5"/>
+        <path d="M16 8L22 16L16 24L10 16Z" fill="rgba(200,168,75,0.28)" stroke="#c8a84b" stroke-width="1"/>
+        <circle cx="16" cy="16" r="2.5" fill="#c8a84b"/>
+      </svg>
+    </div>
+    <div>
+      <span class="brand-text-main">水晶一番賞</span>
+      <span class="brand-text-sub">CRYSTAL ICHIBAN KUJI</span>
+    </div>
+  </a>
+  <ul class="navbar-nav">
+    <li><a href="index.html">首頁</a></li>
+    <li><a href="staff.html">店員介紹</a></li>
+    <li><a href="sets.html" class="active">獎品套組</a></li>
+    <li><a href="index.html#enter" class="nav-cta">輸入抽獎碼</a></li>
+  </ul>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="container">
+    <p class="page-tag">◈ 獎品套組 ◈</p>
+    <h1>所有套組一覽</h1>
+    <div class="divider"></div>
+    <p>每個套組皆有精心設計的分級獎品，限量發售</p>
+  </div>
+</div>
+
+<!-- ===== SET 1: Carbuncle ===== -->
+<section class="set-section" id="carbuncle">
+  <div class="container">
+    <div class="set-layout">
+
+      <!-- Left panel -->
+      <div class="set-panel">
+        <div class="set-art" style="background: linear-gradient(135deg, #18123a, #2a1545);">🦊</div>
+        <div class="set-info">
+          <div class="set-status-row">
+            <span class="set-series">限定套組</span>
+            <span class="badge-available">
+              <span style="width:5px;height:5px;background:#4ade80;border-radius:50%;display:inline-block;"></span>
+              販售中
+            </span>
+          </div>
+          <div class="set-name">卡本克魯的祝福</div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-val">50</div><div class="stat-lbl">總件數</div></div>
+            <div class="stat"><div class="stat-val" id="c1-remain">38</div><div class="stat-lbl">剩餘</div></div>
+            <div class="stat"><div class="stat-val">6</div><div class="stat-lbl">獎品等級</div></div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>已抽出進度</span>
+              <span>12 / 50</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:24%"></div></div>
+          </div>
+          <p class="set-note">以卡本克魯為主題設計，包含坐騎、寵物與家具道具。每件獎品均為遊戲內使用道具，無法轉讓。</p>
+        </div>
+      </div>
+
+      <!-- Right panel -->
+      <div>
+        <div class="prizes-head">
+          <h3>獎品列表</h3>
+          <p>點擊各等級可查看詳細獎品內容</p>
+        </div>
+
+        <!-- S 獎 -->
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-s">S</span>
+            <div class="tier-meta">
+              <div class="tier-title">S 獎 — 最高榮耀</div>
+              <div class="tier-subtitle">全套組最稀有獎品</div>
+            </div>
+            <div class="tier-count">共 <span>1</span> 件</div>
+            <span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item">
+              <span class="tier-badge tier-s" style="flex-shrink:0;">S</span>
+              <div>
+                <div class="item-name">金色卡本克魯坐騎道具</div>
+                <div class="item-desc">召喚限定金色卡本克魯坐騎，全服稀有外觀</div>
+              </div>
+              <span class="item-qty">× 1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- A 獎 -->
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-a">A</span>
+            <div class="tier-meta">
+              <div class="tier-title">A 獎 — 超稀有</div>
+              <div class="tier-subtitle">限定寵物與頭飾</div>
+            </div>
+            <div class="tier-count">共 <span>3</span> 件</div>
+            <span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item">
+              <span class="tier-badge tier-a" style="flex-shrink:0;">A</span>
+              <div><div class="item-name">迷你卡本克魯寵物召喚石</div><div class="item-desc">跟隨你的超可愛迷你卡本克魯</div></div>
+              <span class="item-qty">× 1</span>
+            </div>
+            <div class="tier-item">
+              <span class="tier-badge tier-a" style="flex-shrink:0;">A</span>
+              <div><div class="item-name">寶石鑲嵌頭飾道具</div><div class="item-desc">卡本克魯風格精緻頭飾外觀</div></div>
+              <span class="item-qty">× 1</span>
+            </div>
+            <div class="tier-item">
+              <span class="tier-badge tier-a" style="flex-shrink:0;">A</span>
+              <div><div class="item-name">琉璃手鐲外觀道具</div><div class="item-desc">水晶材質限定手鐲裝飾</div></div>
+              <span class="item-qty">× 1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- B 獎 -->
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-b">B</span>
+            <div class="tier-meta">
+              <div class="tier-title">B 獎 — 稀有</div>
+              <div class="tier-subtitle">家具與裝飾道具</div>
+            </div>
+            <div class="tier-count">共 <span>5</span> 件</div>
+            <span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-b" style="flex-shrink:0;">B</span><div><div class="item-name">卡本克魯雕像家具</div><div class="item-desc">可放置於個人住宅的精緻雕像</div></div><span class="item-qty">× 1</span></div>
+            <div class="tier-item"><span class="tier-badge tier-b" style="flex-shrink:0;">B</span><div><div class="item-name">卡本克魯壁畫道具</div><div class="item-desc">客廳裝飾用精緻壁掛畫</div></div><span class="item-qty">× 1</span></div>
+            <div class="tier-item"><span class="tier-badge tier-b" style="flex-shrink:0;">B</span><div><div class="item-name">水晶燈具家具</div><div class="item-desc">柔和光芒的卡本克魯造型燈</div></div><span class="item-qty">× 1</span></div>
+            <div class="tier-item"><span class="tier-badge tier-b" style="flex-shrink:0;">B</span><div><div class="item-name">魔法地毯道具</div><div class="item-desc">卡本克魯圖案限定地毯</div></div><span class="item-qty">× 1</span></div>
+            <div class="tier-item"><span class="tier-badge tier-b" style="flex-shrink:0;">B</span><div><div class="item-name">珠簾窗飾道具</div><div class="item-desc">透明水晶風格窗簾裝飾</div></div><span class="item-qty">× 1</span></div>
+          </div>
+        </div>
+
+        <!-- C 獎 -->
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-c">C</span>
+            <div class="tier-meta">
+              <div class="tier-title">C 獎 — 普通稀有</div>
+              <div class="tier-subtitle">限定染料組合</div>
+            </div>
+            <div class="tier-count">共 <span>10</span> 件</div>
+            <span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-c" style="flex-shrink:0;">C</span><div><div class="item-name">卡本克魯金染料組</div><div class="item-desc">特製金色系染料套組（含 5 色）</div></div><span class="item-qty">× 5</span></div>
+            <div class="tier-item"><span class="tier-badge tier-c" style="flex-shrink:0;">C</span><div><div class="item-name">卡本克魯翡翠染料組</div><div class="item-desc">特製翡翠綠系染料套組（含 5 色）</div></div><span class="item-qty">× 5</span></div>
+          </div>
+        </div>
+
+        <!-- D 獎 -->
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-d">D</span>
+            <div class="tier-meta">
+              <div class="tier-title">D 獎 — 一般</div>
+              <div class="tier-subtitle">裝飾品道具</div>
+            </div>
+            <div class="tier-count">共 <span>15</span> 件</div>
+            <span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-d" style="flex-shrink:0;">D</span><div><div class="item-name">卡本克魯項鍊道具</div><div class="item-desc">精緻水晶吊墜頸鏈外觀</div></div><span class="item-qty">× 5</span></div>
+            <div class="tier-item"><span class="tier-badge tier-d" style="flex-shrink:0;">D</span><div><div class="item-name">卡本克魯耳環道具</div><div class="item-desc">閃亮寶石耳飾外觀</div></div><span class="item-qty">× 5</span></div>
+            <div class="tier-item"><span class="tier-badge tier-d" style="flex-shrink:0;">D</span><div><div class="item-name">水晶髮飾道具</div><div class="item-desc">點綴水晶的精緻髮箍</div></div><span class="item-qty">× 5</span></div>
+          </div>
+        </div>
+
+        <!-- E 獎 -->
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-e">E</span>
+            <div class="tier-meta">
+              <div class="tier-title">E 獎 — 參與獎</div>
+              <div class="tier-subtitle">消耗品套組</div>
+            </div>
+            <div class="tier-count">共 <span>16</span> 件</div>
+            <span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-e" style="flex-shrink:0;">E</span><div><div class="item-name">卡本克魯主題食物套</div><div class="item-desc">高級料理道具 × 3</div></div><span class="item-qty">× 8</span></div>
+            <div class="tier-item"><span class="tier-badge tier-e" style="flex-shrink:0;">E</span><div><div class="item-name">強化石材料組</div><div class="item-desc">裝備強化用稀有素材包</div></div><span class="item-qty">× 8</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SET 2: Warrior of Light ===== -->
+<section class="set-section" id="warrior">
+  <div class="container">
+    <div class="set-layout">
+
+      <div class="set-panel">
+        <div class="set-art" style="background: linear-gradient(135deg, #1e1010, #32181a);">⚔️</div>
+        <div class="set-info">
+          <div class="set-status-row">
+            <span class="set-series">主題套組</span>
+            <span class="badge-available">
+              <span style="width:5px;height:5px;background:#4ade80;border-radius:50%;display:inline-block;"></span>
+              NEW
+            </span>
+          </div>
+          <div class="set-name">光之戰士傳說</div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-val">30</div><div class="stat-lbl">總件數</div></div>
+            <div class="stat"><div class="stat-val">30</div><div class="stat-lbl">剩餘</div></div>
+            <div class="stat"><div class="stat-val">4</div><div class="stat-lbl">獎品等級</div></div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label"><span>已抽出進度</span><span>0 / 30</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+          </div>
+          <p class="set-note">以光之戰士為主題，涵蓋傳說武器外觀與全身套裝道具。全新上架，尚未有任何人抽出！</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="prizes-head"><h3>獎品列表</h3><p>點擊各等級可查看詳細內容</p></div>
+
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-s">S</span>
+            <div class="tier-meta"><div class="tier-title">S 獎</div><div class="tier-subtitle">最高榮耀獎品</div></div>
+            <div class="tier-count">共 <span>1</span> 件</div><span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-s" style="flex-shrink:0;">S</span><div><div class="item-name">傳說武器外觀套組</div><div class="item-desc">全套傳說系列武器幻化道具，含主武器與副武器</div></div><span class="item-qty">× 1</span></div>
+          </div>
+        </div>
+
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-a">A</span>
+            <div class="tier-meta"><div class="tier-title">A 獎</div><div class="tier-subtitle">全身套裝幻化</div></div>
+            <div class="tier-count">共 <span>3</span> 件</div><span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-a" style="flex-shrink:0;">A</span><div><div class="item-name">光騎士全身套裝道具</div><div class="item-desc">上衣、下裝、手套、腳部全套外觀幻化</div></div><span class="item-qty">× 1</span></div>
+            <div class="tier-item"><span class="tier-badge tier-a" style="flex-shrink:0;">A</span><div><div class="item-name">黑暗英雄全身套裝道具</div><div class="item-desc">暗系限定全套外觀幻化</div></div><span class="item-qty">× 1</span></div>
+            <div class="tier-item"><span class="tier-badge tier-a" style="flex-shrink:0;">A</span><div><div class="item-name">水晶守衛頭盔道具</div><div class="item-desc">特製水晶紋路限定頭盔</div></div><span class="item-qty">× 1</span></div>
+          </div>
+        </div>
+
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-b">B</span>
+            <div class="tier-meta"><div class="tier-title">B 獎</div><div class="tier-subtitle">特殊染料與配件</div></div>
+            <div class="tier-count">共 <span>5</span> 件</div><span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-b" style="flex-shrink:0;">B</span><div><div class="item-name">光明紋章肖像板</div><div class="item-desc">展示光之戰士榮耀的肖像板道具</div></div><span class="item-qty">× 2</span></div>
+            <div class="tier-item"><span class="tier-badge tier-b" style="flex-shrink:0;">B</span><div><div class="item-name">傳說金色染料組</div><div class="item-desc">限定高飽和金色系染料 × 5</div></div><span class="item-qty">× 3</span></div>
+          </div>
+        </div>
+
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-d">D</span>
+            <div class="tier-meta"><div class="tier-title">D 獎</div><div class="tier-subtitle">紀念品與消耗品</div></div>
+            <div class="tier-count">共 <span>21</span> 件</div><span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-d" style="flex-shrink:0;">D</span><div><div class="item-name">戰士徽章裝飾道具</div><div class="item-desc">光之戰士徽章紀念小物</div></div><span class="item-qty">× 11</span></div>
+            <div class="tier-item"><span class="tier-badge tier-d" style="flex-shrink:0;">D</span><div><div class="item-name">高級戰鬥食物套組</div><div class="item-desc">提升各職業能力值的高品質料理 × 5</div></div><span class="item-qty">× 10</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SET 3: Crystal City ===== -->
+<section class="set-section" id="crystal">
+  <div class="container">
+    <div class="set-layout">
+
+      <div class="set-panel">
+        <div class="set-art" style="background: linear-gradient(135deg, #0e1828, #121e34);">💎</div>
+        <div class="set-info">
+          <div class="set-status-row">
+            <span class="set-series">季節套組</span>
+            <span class="badge-available">
+              <span style="width:5px;height:5px;background:#4ade80;border-radius:50%;display:inline-block;"></span>
+              販售中
+            </span>
+          </div>
+          <div class="set-name">水晶都物語</div>
+          <div class="stat-row">
+            <div class="stat"><div class="stat-val">40</div><div class="stat-lbl">總件數</div></div>
+            <div class="stat"><div class="stat-val">25</div><div class="stat-lbl">剩餘</div></div>
+            <div class="stat"><div class="stat-val">5</div><div class="stat-lbl">獎品等級</div></div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label"><span>已抽出進度</span><span>15 / 40</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:37.5%"></div></div>
+          </div>
+          <p class="set-note">以水晶都為靈感設計，以精緻家具與住宅裝飾道具為主。適合喜愛佈置家園的玩家。</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="prizes-head"><h3>獎品列表</h3><p>點擊各等級可查看詳細內容</p></div>
+
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-s">S</span>
+            <div class="tier-meta"><div class="tier-title">S 獎</div><div class="tier-subtitle">頂級家具獎品</div></div>
+            <div class="tier-count">共 <span>1</span> 件</div><span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-s" style="flex-shrink:0;">S</span><div><div class="item-name">水晶都噴泉大型家具</div><div class="item-desc">重現水晶都廣場噴泉的超大型室外家具</div></div><span class="item-qty">× 1</span></div>
+          </div>
+        </div>
+
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-a">A</span>
+            <div class="tier-meta"><div class="tier-title">A 獎</div><div class="tier-subtitle">特殊寵物召喚</div></div>
+            <div class="tier-count">共 <span>3</span> 件</div><span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-a" style="flex-shrink:0;">A</span><div><div class="item-name">水晶精靈寵物召喚石</div><div class="item-desc">透明水晶精靈造型稀有寵物</div></div><span class="item-qty">× 1</span></div>
+            <div class="tier-item"><span class="tier-badge tier-a" style="flex-shrink:0;">A</span><div><div class="item-name">迷你空艇寵物道具</div><div class="item-desc">仿製水晶都空艇的精緻迷你寵物</div></div><span class="item-qty">× 2</span></div>
+          </div>
+        </div>
+
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-b">B</span>
+            <div class="tier-meta"><div class="tier-title">B 獎</div><div class="tier-subtitle">職業外觀道具</div></div>
+            <div class="tier-count">共 <span>5</span> 件</div><span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-b" style="flex-shrink:0;">B</span><div><div class="item-name">水晶都外觀幻化套組</div><div class="item-desc">城市警衛風格全套外觀道具</div></div><span class="item-qty">× 3</span></div>
+            <div class="tier-item"><span class="tier-badge tier-b" style="flex-shrink:0;">B</span><div><div class="item-name">水晶飾品套組</div><div class="item-desc">全身配件幻化組（項鍊+耳環+手環）</div></div><span class="item-qty">× 2</span></div>
+          </div>
+        </div>
+
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-c">C</span>
+            <div class="tier-meta"><div class="tier-title">C 獎</div><div class="tier-subtitle">中型家具道具</div></div>
+            <div class="tier-count">共 <span>8</span> 件</div><span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-c" style="flex-shrink:0;">C</span><div><div class="item-name">水晶書架家具</div><div class="item-desc">附有發光水晶裝飾的書架</div></div><span class="item-qty">× 3</span></div>
+            <div class="tier-item"><span class="tier-badge tier-c" style="flex-shrink:0;">C</span><div><div class="item-name">魔導研究桌家具</div><div class="item-desc">附試管燒瓶的魔法研究用書桌</div></div><span class="item-qty">× 3</span></div>
+            <div class="tier-item"><span class="tier-badge tier-c" style="flex-shrink:0;">C</span><div><div class="item-name">水晶窗戶家具</div><div class="item-desc">彩繪水晶玻璃裝飾窗</div></div><span class="item-qty">× 2</span></div>
+          </div>
+        </div>
+
+        <div class="prize-tier-block">
+          <div class="tier-header" onclick="toggleTier(this)">
+            <span class="tier-badge tier-e">E</span>
+            <div class="tier-meta"><div class="tier-title">E 獎</div><div class="tier-subtitle">素材與消耗品</div></div>
+            <div class="tier-count">共 <span>23</span> 件</div><span class="tier-toggle">▾</span>
+          </div>
+          <div class="tier-items">
+            <div class="tier-item"><span class="tier-badge tier-e" style="flex-shrink:0;">E</span><div><div class="item-name">生產職業素材包</div><div class="item-desc">鍛冶、裁縫、精煉等職業用稀有素材</div></div><span class="item-qty">× 13</span></div>
+            <div class="tier-item"><span class="tier-badge tier-e" style="flex-shrink:0;">E</span><div><div class="item-name">高級採集食物組</div><div class="item-desc">提升採集判定的特製料理 × 3</div></div><span class="item-qty">× 10</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SET 4: Coming Soon ===== -->
+<section class="set-section" id="shadow">
+  <div class="container">
+    <div class="coming-soon-card">
+      <div class="coming-soon-icon">🌑</div>
+      <h3>暗影訴說套組</h3>
+      <p style="color: var(--accent-gold); font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:0.75rem;">COMING SOON</p>
+      <p>以黑暗英雄「幽雲」為主題的全新套組，正在籌備中。<br>請持續關注公告與 Discord 伺服器。</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-main">
+    <div>
+      <div class="footer-brand-name">
+        <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
+          <path d="M16 2L28 16L16 30L4 16Z" fill="rgba(200,168,75,0.2)" stroke="#c8a84b" stroke-width="1.5"/>
+          <circle cx="16" cy="16" r="2.5" fill="#c8a84b"/>
+        </svg>
+        水晶一番賞
+      </div>
+      <p class="footer-brand-desc">
+        Crystal Ichiban Kuji<br>Final Fantasy XIV 主題限定抽獎店<br>
+        本店於遊戲內市場亭販賣抽獎機會<br><br>
+        ⟡ 本網站為玩家自製，並非官方網站
+      </p>
+    </div>
+    <div class="footer-col">
+      <h4>快速連結</h4>
+      <ul>
+        <li><a href="index.html">首頁</a></li>
+        <li><a href="staff.html">店員介紹</a></li>
+        <li><a href="sets.html">獎品套組</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>聯絡資訊</h4>
+      <ul>
+        <li><a href="#">遊戲內私訊店員</a></li>
+        <li><a href="#">Discord 伺服器</a></li>
+        <li><a href="#">抽獎規則說明</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 水晶一番賞 · 玩家自製非官方網站</span>
+    <span>Final Fantasy XIV © SQUARE ENIX CO., LTD. All Rights Reserved.</span>
+  </div>
+</footer>
+
+<script>
+  function toggleTier(header) {
+    const items = header.nextElementSibling;
+    const isOpen = items.classList.contains('open');
+    items.classList.toggle('open', !isOpen);
+    header.classList.toggle('open', !isOpen);
+  }
+</script>
+</body>
+</html>

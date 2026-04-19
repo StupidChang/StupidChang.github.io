@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>店員介紹 — 水晶一番賞</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .staff-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    }
+    .staff-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+
+    /* Card header with banner art */
+    .staff-banner {
+      height: 110px;
+      position: relative;
+    }
+    .staff-avatar {
+      position: absolute;
+      bottom: -34px; left: 1.5rem;
+      width: 68px; height: 68px;
+      background: var(--bg-secondary);
+      border: 3px solid var(--bg-card);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.9rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .staff-status {
+      position: absolute;
+      top: 0.75rem; right: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.22rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+    .s-online  { background: rgba(74,222,128,0.14); border: 1px solid rgba(74,222,128,0.28); color: #4ade80; }
+    .s-busy    { background: rgba(251,191,36,0.13); border: 1px solid rgba(251,191,36,0.26); color: #fbbf24; }
+    .s-offline { background: rgba(148,163,184,0.1);  border: 1px solid rgba(148,163,184,0.2);  color: #94a3b8; }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Card body */
+    .staff-body {
+      padding: 2.6rem 1.5rem 1.5rem;
+    }
+    .staff-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.12rem;
+    }
+    .staff-name-en {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      margin-bottom: 0.9rem;
+    }
+
+    .staff-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.18rem 0.6rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+    }
+
+    .staff-quote {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      font-style: italic;
+      padding: 0.9rem 1rem;
+      background: var(--bg-secondary);
+      border-left: 2px solid var(--accent-gold-dim);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin-bottom: 1rem;
+    }
+    .staff-specialty {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .staff-specialty strong { color: var(--accent-gold); font-weight: 500; }
+
+    .hr-thin {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1rem 0;
+    }
+
+    /* Schedule table */
+    .schedule-card {
+      max-width: 900px;
+      margin: 3rem auto 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .schedule-head {
+      background: linear-gradient(135deg, rgba(200,168,75,0.07), rgba(107,79,154,0.07));
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .schedule-table { width: 100%; border-collapse: collapse; }
+    .schedule-table th {
+      padding: 0.7rem 1.2rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .schedule-table td {
+      padding: 0.8rem 1.2rem;
+      font-size: 0.83rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    .schedule-table tr:last-child td { border-bottom: none; }
+    .schedule-table td:first-child { color: var(--text-primary); font-weight: 500; }
+    .sched-tag {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      background: rgba(200,168,75,0.09);
+      border: 1px solid var(--accent-gold-dim);
+      border-radius: var(--radius);
+      font-size: 0.74rem;
+      color: var(--accent-gold);
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="brand-crystal">
+      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" class="nav-crystal-svg">
+        <path d="M16 2L28 16L16 30L4 16Z" fill="rgba(200,168,75,0.14)" stroke="#c8a84b" stroke-width="1.5"/>
+        <path d="M16 8L22 16L16 24L10 16Z" fill="rgba(200,168,75,0.28)" stroke="#c8a84b" stroke-width="1"/>
+        <circle cx="16" cy="16" r="2.5" fill="#c8a84b"/>
+      </svg>
+    </div>
+    <div>
+      <span class="brand-text-main">水晶一番賞</span>
+      <span class="brand-text-sub">CRYSTAL ICHIBAN KUJI</span>
+    </div>
+  </a>
+  <ul class="navbar-nav">
+    <li><a href="index.html">首頁</a></li>
+    <li><a href="staff.html" class="active">店員介紹</a></li>
+    <li><a href="sets.html">獎品套組</a></li>
+    <li><a href="index.html#enter" class="nav-cta">輸入抽獎碼</a></li>
+  </ul>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="container">
+    <p class="page-tag">◈ 店員介紹 ◈</p>
+    <h1>我們的店員</h1>
+    <div class="divider"></div>
+    <p>在艾歐澤亞大陸的各個角落，他們隨時準備為你服務</p>
+  </div>
+</div>
+
+<!-- STAFF GRID -->
+<section class="section">
+  <div class="container">
+    <div class="staff-grid">
+
+      <!-- Mira -->
+      <div class="staff-card">
+        <div class="staff-banner" style="background: linear-gradient(135deg, #0f1a30, #1a1050);">
+          <div class="staff-avatar">🌟</div>
+          <div class="staff-status s-online">
+            <span class="status-dot" style="background:#4ade80;"></span>在線
+          </div>
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">米拉‧星辰</div>
+          <div class="staff-name-en">Mira Starstream</div>
+          <div class="staff-chips">
+            <span class="chip">✦ 精靈族</span>
+            <span class="chip">🌿 白魔法師 Lv.90</span>
+            <span class="chip">黎明盟約</span>
+          </div>
+          <div class="staff-quote">
+            「光明與治癒是我的使命，不過今天讓我換個角色——歡迎來到水晶一番賞！希望你今天手氣大開！」
+          </div>
+          <hr class="hr-thin">
+          <div class="staff-specialty">擅長：<strong>接待新玩家、解答抽獎規則、友善服務</strong></div>
+        </div>
+      </div>
+
+      <!-- Ashul -->
+      <div class="staff-card">
+        <div class="staff-banner" style="background: linear-gradient(135deg, #1a0f20, #2e1030);">
+          <div class="staff-avatar">⚔️</div>
+          <div class="staff-status s-busy">
+            <span class="status-dot" style="background:#fbbf24;"></span>忙碌
+          </div>
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">阿修‧暗焰</div>
+          <div class="staff-name-en">Ashul Darkflame</div>
+          <div class="staff-chips">
+            <span class="chip">✦ 魔族</span>
+            <span class="chip">🗡️ 暗黑騎士 Lv.90</span>
+            <span class="chip">深夜組</span>
+          </div>
+          <div class="staff-quote">
+            「黑暗並不可怕，可怕的是沒有勇氣嘗試。每一張籤，都是命運的挑戰。你，敢不敢抽？」
+          </div>
+          <hr class="hr-thin">
+          <div class="staff-specialty">擅長：<strong>深夜場次、特殊活動主持、限定套組介紹</strong></div>
+        </div>
+      </div>
+
+      <!-- Luna -->
+      <div class="staff-card">
+        <div class="staff-banner" style="background: linear-gradient(135deg, #0a1525, #102040);">
+          <div class="staff-avatar">🔮</div>
+          <div class="staff-status s-online">
+            <span class="status-dot" style="background:#4ade80;"></span>在線
+          </div>
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">露娜‧碧翠</div>
+          <div class="staff-name-en">Luna Verdigris</div>
+          <div class="staff-chips">
+            <span class="chip">✦ 人族</span>
+            <span class="chip">⭐ 占星術士 Lv.90</span>
+            <span class="chip">情報分析師</span>
+          </div>
+          <div class="staff-quote">
+            「我的星盤已經為你算過了，今天的運勢相當不錯！說不定 S 獎就在等著你，快來試試吧！」
+          </div>
+          <hr class="hr-thin">
+          <div class="staff-specialty">擅長：<strong>獎品機率說明、套組分析、週末開箱活動</strong></div>
+        </div>
+      </div>
+
+      <!-- Leo -->
+      <div class="staff-card">
+        <div class="staff-banner" style="background: linear-gradient(135deg, #1c1605, #2c2010);">
+          <div class="staff-avatar">🦁</div>
+          <div class="staff-status s-offline">
+            <span class="status-dot" style="background:#94a3b8;"></span>離線
+          </div>
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">雷歐‧金鐵</div>
+          <div class="staff-name-en">Leo Goldsteel</div>
+          <div class="staff-chips">
+            <span class="chip">✦ 魯加族</span>
+            <span class="chip">🔱 武士 Lv.90</span>
+            <span class="chip">週末限定</span>
+          </div>
+          <div class="staff-quote">
+            「榮耀與獎品，皆值得全力追求。本店件件精品，武士的眼光絕不會錯——相信我，值得一抽！」
+          </div>
+          <hr class="hr-thin">
+          <div class="staff-specialty">擅長：<strong>週末大場活動、大型一番賞開箱直播</strong></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Weekly Schedule -->
+    <div class="schedule-card">
+      <div class="schedule-head">⟡ 本週店員排班</div>
+      <table class="schedule-table">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>值班店員</th>
+            <th>時段</th>
+            <th>特別活動</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>週一 ～ 週三</td>
+            <td>米拉‧星辰</td>
+            <td><span class="sched-tag">20:00 – 23:00</span></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>週四 ～ 週五</td>
+            <td>阿修‧暗焰</td>
+            <td><span class="sched-tag">19:30 – 23:30</span></td>
+            <td>深夜限定折扣</td>
+          </tr>
+          <tr>
+            <td>週六</td>
+            <td>露娜‧碧翠 / 雷歐‧金鐵</td>
+            <td><span class="sched-tag">14:00 – 23:00</span></td>
+            <td>週末開箱直播</td>
+          </tr>
+          <tr>
+            <td>週日</td>
+            <td>米拉‧星辰</td>
+            <td><span class="sched-tag">14:00 – 22:00</span></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-main">
+    <div>
+      <div class="footer-brand-name">
+        <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
+          <path d="M16 2L28 16L16 30L4 16Z" fill="rgba(200,168,75,0.2)" stroke="#c8a84b" stroke-width="1.5"/>
+          <circle cx="16" cy="16" r="2.5" fill="#c8a84b"/>
+        </svg>
+        水晶一番賞
+      </div>
+      <p class="footer-brand-desc">
+        Crystal Ichiban Kuji<br>
+        Final Fantasy XIV 主題限定抽獎店<br>
+        本店於遊戲內市場亭販賣抽獎機會<br><br>
+        ⟡ 本網站為玩家自製，並非官方網站
+      </p>
+    </div>
+    <div class="footer-col">
+      <h4>快速連結</h4>
+      <ul>
+        <li><a href="index.html">首頁</a></li>
+        <li><a href="staff.html">店員介紹</a></li>
+        <li><a href="sets.html">獎品套組</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>聯絡資訊</h4>
+      <ul>
+        <li><a href="#">遊戲內私訊店員</a></li>
+        <li><a href="#">Discord 伺服器</a></li>
+        <li><a href="#">抽獎規則說明</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 水晶一番賞 · 玩家自製非官方網站</span>
+    <span>Final Fantasy XIV © SQUARE ENIX CO., LTD. All Rights Reserved.</span>
+  </div>
+</footer>
+
+</body>
+</html>

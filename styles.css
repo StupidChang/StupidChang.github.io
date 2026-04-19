@@ -1,0 +1,335 @@
+/* ============================================================
+   水晶一番賞 - Crystal Ichiban Kuji
+   Shared Styles
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+:root {
+  --bg-primary:    #090b13;
+  --bg-secondary:  #0d1020;
+  --bg-card:       #111525;
+  --bg-card-hover: #171a2e;
+  --bg-input:      #0b0e1a;
+
+  --accent-gold:       #c8a84b;
+  --accent-gold-light: #e8c975;
+  --accent-gold-dim:   #7a6428;
+  --accent-purple:     #6b4f9a;
+  --accent-blue:       #3a7fc1;
+  --accent-teal:       #3aa8a8;
+
+  --text-primary:   #e0d8c4;
+  --text-secondary: #9a9278;
+  --text-muted:     #5a5448;
+
+  --border:       #1e2035;
+  --border-light: #2d2f4a;
+
+  --shadow:      0 8px 32px rgba(0,0,0,0.7);
+  --shadow-gold: 0 0 30px rgba(200,168,75,0.12);
+  --radius:      4px;
+  --radius-lg:   8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: "Noto Sans TC", sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-gold-dim); }
+
+/* ===== NAVIGATION ===== */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  height: 60px;
+  background: rgba(9,11,19,0.95);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 2.5rem;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brand-crystal {
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+}
+.brand-crystal svg {
+  filter: drop-shadow(0 0 6px rgba(200,168,75,0.45));
+}
+
+.brand-text-main {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+}
+.brand-text-sub {
+  display: block;
+  font-size: 0.58rem;
+  color: var(--text-muted);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+  margin-left: auto;
+}
+
+.navbar-nav a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  transition: color 0.25s;
+  position: relative;
+}
+.navbar-nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0; right: 0;
+  height: 1px;
+  background: var(--accent-gold);
+  transform: scaleX(0);
+  transition: transform 0.25s;
+}
+.navbar-nav a:hover,
+.navbar-nav a.active { color: var(--accent-gold); }
+.navbar-nav a:hover::after,
+.navbar-nav a.active::after { transform: scaleX(1); }
+
+.nav-cta {
+  padding: 0.4rem 1.25rem !important;
+  background: linear-gradient(135deg, var(--accent-gold-dim), var(--accent-gold));
+  color: #09090f !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius);
+  letter-spacing: 0.04em;
+  transition: box-shadow 0.25s, transform 0.25s !important;
+}
+.nav-cta::after { display: none !important; }
+.nav-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(200,168,75,0.35);
+  color: #09090f !important;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  margin-top: 6rem;
+}
+
+.footer-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 3rem;
+}
+
+.footer-brand-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.footer-brand-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.85;
+}
+
+.footer-col h4 {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 0.5rem; }
+.footer-col ul li a {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+.footer-col ul li a:hover { color: var(--accent-gold); }
+
+.footer-bottom {
+  border-top: 1px solid var(--border);
+  padding: 1rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* ===== LAYOUT UTILITIES ===== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+.section { padding: 5rem 0; }
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.section-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  margin-bottom: 0.6rem;
+}
+.section-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+.section-header p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+.divider {
+  width: 36px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  margin: 0.75rem auto 0.75rem;
+}
+
+/* ===== TIER BADGE ===== */
+.tier-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: var(--radius);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+.tier-s { background: linear-gradient(135deg,#d44,#f80); color:#fff; }
+.tier-a { background: linear-gradient(135deg,#c8a84b,#e8c975); color:#09090f; }
+.tier-b { background: linear-gradient(135deg,#6b4f9a,#9b7fcb); color:#fff; }
+.tier-c { background: linear-gradient(135deg,#3a7fc1,#60a0e0); color:#fff; }
+.tier-d { background: linear-gradient(135deg,#3aa8a8,#5ad0c8); color:#09090f; }
+.tier-e { background: linear-gradient(135deg,#4a5568,#718096); color:#fff; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  border-radius: var(--radius);
+  font-family: "Noto Sans TC", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s;
+  border: none;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-gold-dim), var(--accent-gold));
+  color: #09090f;
+  font-weight: 700;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(200,168,75,0.35);
+}
+.btn-outline {
+  background: transparent;
+  color: var(--accent-gold);
+  border: 1px solid var(--accent-gold-dim);
+}
+.btn-outline:hover {
+  background: rgba(200,168,75,0.08);
+  border-color: var(--accent-gold);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+.btn-ghost:hover {
+  color: var(--text-primary);
+  background: var(--bg-card);
+}
+
+/* ===== PAGE HERO (inner pages) ===== */
+.page-hero {
+  padding: 120px 0 60px;
+  text-align: center;
+  background: radial-gradient(ellipse 60% 40% at 50% 100%, rgba(107,79,154,0.12) 0%, transparent 70%);
+  border-bottom: 1px solid var(--border);
+}
+.page-hero .page-tag {
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+.page-hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+.page-hero p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* ===== SHARED NAVBAR SVG CRYSTAL ===== */
+.nav-crystal-svg {
+  display: block;
+  filter: drop-shadow(0 0 6px rgba(200,168,75,0.45));
+}
