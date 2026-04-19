@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>抽獎 — 水晶一番賞</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="./abc.min.js"></script>
@@ -216,7 +217,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background-image: url('./card-back.svg');
+      background-image: url('./img/card-back2.png');
       background-size: cover;
       background-position: center;
       opacity: 0.25;
@@ -268,6 +269,7 @@
       width: 92%;
       text-align: center;
       position: relative;
+      overflow: visible;
       box-shadow: var(--shadow), 0 0 40px rgba(200,168,75,0.1);
     }
 
@@ -296,11 +298,12 @@
 
     /* Turn.js book container in modal */
     .book-wrap {
-      display: flex;
-      justify-content: center;
+      text-align: center;
+      overflow: visible;
       margin-bottom: 1.5rem;
     }
     .book {
+      display: inline-block;
       width: 420px;
       height: 240px;
       box-shadow: 4px 4px 20px rgba(0,0,0,0.6);
@@ -310,7 +313,7 @@
     }
     .page {
       width: 100%; height: 100%;
-      background-image: url('./card-back.svg');
+      background-image: url('./img/card-back2.png');
       background-size: cover;
       background-position: center;
       backface-visibility: hidden;
@@ -461,7 +464,7 @@
   <div class="container">
     <div class="prize-grid" id="prizeGrid"></div>
     <div class="empty-state" id="emptyState">
-      <div class="empty-state-icon">🎉</div>
+      <div class="empty-state-icon"><i class="fa-solid fa-trophy"></i></div>
       <h3>所有獎品已全數抽出！</h3>
       <p>本套組已完結，歡迎關注我們的新套組資訊</p>
       <a href="sets.html" class="btn btn-outline" style="margin-top:1rem;">查看其他套組</a>
@@ -741,34 +744,37 @@ function openDraw(prize) {
 
   document.getElementById('drawModal').classList.add('visible');
 
-  setTimeout(() => {
-    $('#drawBook').turn({
-      width: 420,
-      height: 240,
-      autoCenter: true,
-      display: 'single',
-      gradients: true,
-      acceleration: true,
-      corners: 'tl',
-      peel: 'tl',
-      elevation: 50,
-      pages: 2,
-      page: 2,
-      when: {
-        end: function() {
-          try { document.getElementById('tearSound').play(); } catch(e) {}
-        },
-        first: function() {
-          $('#drawBook').turn('disable', true);
-          if (!tearDone) {
-            tearDone = true;
-            onTearComplete(prize);
+  // Double rAF ensures the modal has fully painted before turn.js measures dimensions
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      $('#drawBook').turn({
+        width: 420,
+        height: 240,
+        autoCenter: true,
+        display: 'single',
+        gradients: true,
+        acceleration: true,
+        corners: 'tl',
+        peel: 'tl',
+        elevation: 50,
+        pages: 2,
+        page: 2,
+        when: {
+          end: function() {
+            try { document.getElementById('tearSound').play(); } catch(e) {}
+          },
+          first: function() {
+            $('#drawBook').turn('disable', true);
+            if (!tearDone) {
+              tearDone = true;
+              onTearComplete(prize);
+            }
           }
         }
-      }
+      });
+      bookInitialized = true;
     });
-    bookInitialized = true;
-  }, 120);
+  });
 }
 
 function getTierStyle(tier) {
