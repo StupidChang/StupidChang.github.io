@@ -1,124 +1,651 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- CSS only -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="./abc.min.js"></script>
-    <title>一番賞抽獎 - 撕籤動畫</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f8f8f8;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            font-family: "Noto Sans TC", sans-serif;
-            font-optical-sizing: auto;
-            font-weight: 400;
-            font-style: normal;
-            overflow: hidden; /* 防止頁面跳動 */
-        }
-        h1 {
-            font-size: 32px;
-            margin-bottom: 20px;
-        }
-        .book {
-            width: 100%;
-            height: 100%;
-            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
-            border-radius: 10px;
-            border: 3px solid #a49977;
-            overflow: visible !important; /* 確保翻頁動畫不會被裁切 */
-        }
-        .page {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-            /* background: linear-gradient(135deg, #eed881, #ff940b) !important; */
-            backface-visibility: hidden; /* 防止翻頁背面透明 */
-            background-image: url('./card-back.svg'); /* 引入 card-back.svg */
-            background-size: cover; /* 讓圖片覆蓋整個區域 */
-            background-position: center; /* 讓圖片置中 */
-            color: #f8f8f8;
-        }
-        .page2 {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-            /* background: linear-gradient(135deg, #eed881, #ff940b) !important; */
-            backface-visibility: hidden; /* 防止翻頁背面透明 */
-            background-image: url('./card-silver.png'); /*引入 card-back.svg */
-            background-size: cover; /* 讓圖片覆蓋整個區域 */
-            background-position: center; /* 讓圖片置中 */
-            color: #464646;
-        }
-        .instructions {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #555;
-        }
-        #coverPage {
-            /* background-color: aqua !important; */
-            outline: 4px double black; /* 雙層邊框 */
-            background-image: url('./card-back.svg'); /* 只在封面使用 */
-            background-size: cover;
-            background-position: center;
-            /* box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); 黑色陰影增加邊框層次感 */
-            padding-left: 150px;
-            padding-right: 150px;
-            padding-top: 100px;
-            padding-bottom: 100px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>水晶一番賞 — Final Fantasy XIV 限定抽獎</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 65% 55% at 50% 55%, rgba(107,79,154,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 35% at 15% 70%, rgba(58,127,193,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 30% 25% at 85% 20%, rgba(200,168,75,0.07) 0%, transparent 50%);
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(200,168,75,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,168,75,0.025) 1px, transparent 1px);
+      background-size: 72px 72px;
+    }
+    .hero-particles { position: absolute; inset: 0; pointer-events: none; }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      animation: pFloat linear infinite;
+      opacity: 0;
+    }
+    @keyframes pFloat {
+      0%   { transform: translateY(105vh); opacity: 0; }
+      8%   { opacity: 0.45; }
+      92%  { opacity: 0.15; }
+      100% { transform: translateY(-5vh) translateX(15px); opacity: 0; }
+    }
 
-    </style>
+    .hero-content {
+      position: relative; z-index: 2;
+      width: 100%;
+      max-width: 680px;
+      padding: 2rem 2rem 3rem;
+      text-align: center;
+      padding-top: 90px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.85rem;
+      font-size: 0.68rem;
+      letter-spacing: 0.32em;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .eyebrow-line { width: 36px; height: 1px; background: var(--accent-gold); opacity: 0.4; }
+
+    .hero-title {
+      font-size: clamp(2.8rem, 6vw, 4.2rem);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: 0.04em;
+      background: linear-gradient(140deg, var(--accent-gold-light) 0%, var(--accent-gold) 50%, var(--accent-gold-dim) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.3rem;
+    }
+    .hero-title-en {
+      font-size: 0.78rem;
+      letter-spacing: 0.32em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+    .hero-desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.9;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Code Entry */
+    .code-box {
+      background: rgba(13,16,32,0.82);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem 2rem;
+      max-width: 460px;
+      margin: 0 auto 1.5rem;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow), var(--shadow-gold);
+    }
+    .code-box-title {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.08em;
+      margin-bottom: 1.1rem;
+    }
+    .code-row {
+      display: flex;
+      gap: 0.65rem;
+      margin-bottom: 0.55rem;
+    }
+    .code-input {
+      flex: 1;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 0.7rem 1rem;
+      color: var(--text-primary);
+      font-family: "Noto Sans TC", sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .code-input:focus {
+      border-color: var(--accent-gold-dim);
+      box-shadow: 0 0 0 3px rgba(200,168,75,0.1);
+    }
+    .code-input::placeholder { color: var(--text-muted); letter-spacing: 0.08em; }
+    .code-error {
+      font-size: 0.78rem;
+      color: #f87171;
+      text-align: left;
+      display: none;
+      margin-bottom: 0.3rem;
+    }
+    .code-hint {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    /* Announcement */
+    .announce {
+      max-width: 460px;
+      margin: 0 auto;
+      background: rgba(200,168,75,0.06);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent-gold-dim);
+      border-radius: var(--radius);
+      padding: 0.8rem 1.1rem;
+      display: flex;
+      gap: 0.8rem;
+      align-items: flex-start;
+      text-align: left;
+    }
+    .announce-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .announce p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+    .announce strong { color: var(--accent-gold); }
+
+    /* ===== HOW IT WORKS ===== */
+    .steps-wrap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 820px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .steps-wrap::before {
+      content: '';
+      position: absolute;
+      top: 30px;
+      left: calc(16.66% + 1rem);
+      right: calc(16.66% + 1rem);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-light), var(--border-light), transparent);
+    }
+    .step { text-align: center; position: relative; z-index: 1; }
+    .step-icon {
+      width: 60px; height: 60px;
+      margin: 0 auto 1.1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      position: relative;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .step-icon::before {
+      content: attr(data-n);
+      position: absolute;
+      top: -8px; right: -8px;
+      width: 20px; height: 20px;
+      background: var(--accent-gold);
+      color: #09090f;
+      border-radius: 50%;
+      font-size: 0.62rem;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step:hover .step-icon {
+      border-color: var(--accent-gold-dim);
+      box-shadow: 0 0 18px rgba(200,168,75,0.18);
+    }
+    .step h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    .step p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+    }
+
+    /* ===== BUSINESS HOURS ===== */
+    .hours-wrap { max-width: 680px; margin: 0 auto; }
+    .hours-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .hours-head {
+      background: linear-gradient(135deg, rgba(200,168,75,0.07), rgba(107,79,154,0.07));
+      border-bottom: 1px solid var(--border);
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .hours-head-icon { font-size: 1.2rem; }
+    .hours-head h3 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .hours-table { width: 100%; border-collapse: collapse; }
+    .hours-table tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+    .hours-table td { padding: 0.9rem 1.5rem; font-size: 0.875rem; }
+    .hours-table td:first-child { color: var(--text-secondary); font-weight: 500; width: 40%; }
+    .time-tag {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      background: rgba(200,168,75,0.09);
+      border: 1px solid var(--accent-gold-dim);
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      color: var(--accent-gold);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+    .online-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: #4ade80;
+    }
+    .pulse-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+      50%      { box-shadow: 0 0 0 5px rgba(74,222,128,0); }
+    }
+    .hours-note {
+      padding: 0.9rem 1.5rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      background: rgba(0,0,0,0.18);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ===== FEATURED SETS ===== */
+    .sets-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .set-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all 0.3s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .set-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow), var(--shadow-gold);
+    }
+    .set-card-art {
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .set-card-art::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, var(--bg-card) 100%);
+    }
+    .set-card-body { padding: 1.2rem 1.4rem; }
+    .set-tag {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.35rem;
+    }
+    .set-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.55rem;
+    }
+    .set-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .set-meta-count { color: var(--accent-gold); font-weight: 500; }
+
+    /* status badge */
+    .badge-new {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      background: rgba(74,222,128,0.15);
+      border: 1px solid rgba(74,222,128,0.3);
+      border-radius: var(--radius);
+      font-size: 0.68rem;
+      color: #4ade80;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      margin-left: 0.4rem;
+    }
+  </style>
 </head>
 <body>
-    <div class="rounded-3 shadow-lg p-5">
-        <h1>歡迎來到一番賞抽獎！</h1>
-        <p class="instructions">請點擊或拖動左上角來撕開籤，看看你中了什麼獎品！</p>
-        <div class="book-container ">
-            <div class="book rounded-3" id="book">
-                <div class="page2" id="prizePage"></div>
-                <div class="page border-dark">
-                    <!-- <div id="coverPage">
-                        StupidChang抽獎店
-                    </div> -->
-                    
-                </div>
-            </div>
-        </div>
 
-        <div class="book-container" style="padding-top: 50px;">
-            <div class="book rounded-3" id="bookRight">
-                <div class="page border-dark">
-                    <!-- <div id="coverPage">
-                        StupidChang抽獎店
-                    </div> -->
-                    
-                </div>
-                <div class="page2" id="prizePageRight"></div>
-            </div>
-        </div>
+<!-- ===== NAV ===== -->
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="brand-crystal">
+      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" class="nav-crystal-svg">
+        <path d="M16 2L28 16L16 30L4 16Z" fill="rgba(200,168,75,0.14)" stroke="#c8a84b" stroke-width="1.5"/>
+        <path d="M16 8L22 16L16 24L10 16Z" fill="rgba(200,168,75,0.28)" stroke="#c8a84b" stroke-width="1"/>
+        <circle cx="16" cy="16" r="2.5" fill="#c8a84b"/>
+      </svg>
+    </div>
+    <div>
+      <span class="brand-text-main">水晶一番賞</span>
+      <span class="brand-text-sub">CRYSTAL ICHIBAN KUJI</span>
+    </div>
+  </a>
+  <ul class="navbar-nav">
+    <li><a href="index.html" class="active">首頁</a></li>
+    <li><a href="staff.html">店員介紹</a></li>
+    <li><a href="sets.html">獎品套組</a></li>
+    <li><a href="#enter" class="nav-cta">輸入抽獎碼</a></li>
+  </ul>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-particles" id="particles"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-line"></span>
+      Final Fantasy XIV
+      <span class="eyebrow-line"></span>
     </div>
 
-    <!-- 撕開音效 -->
-    <audio id="tearSound" src="./paper-ripping-dechirure-de-papier-audio-not-edited-18466.mp3"></audio>
-    
-    <script src="dist/script-obfuscated.js"></script>
+    <h1 class="hero-title">水晶一番賞</h1>
+    <p class="hero-title-en">Crystal Ichiban Kuji</p>
+    <p class="hero-desc">
+      在艾歐澤亞大陸的冒險之餘，體驗獨特的抽獎樂趣<br>
+      向店員購買機會，輸入唯一碼，挑戰你的幸運
+    </p>
+
+    <div class="code-box" id="enter">
+      <p class="code-box-title">⟡ 輸入你的抽獎唯一碼</p>
+      <div class="code-row">
+        <input
+          type="text"
+          class="code-input"
+          id="codeInput"
+          placeholder="例：FF-A3K8-92JX"
+          maxlength="20"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button class="btn btn-primary" onclick="submitCode()">開始抽獎</button>
+      </div>
+      <div class="code-error" id="codeError">請輸入抽獎碼</div>
+      <p class="code-hint">抽獎碼由店員產生，每組碼限用一次</p>
+    </div>
+
+    <div class="announce">
+      <span class="announce-icon">📢</span>
+      <p>
+        <strong>最新公告：</strong>
+        「卡本克魯的祝福」套組已上架！歡迎在遊戲中向店員購買抽獎機會。限量 50 件，先搶先得。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section" style="background: var(--bg-secondary);">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">◈ 流程說明 ◈</span>
+      <h2>如何參與一番賞</h2>
+      <div class="divider"></div>
+      <p>三個簡單步驟，開始你的抽獎旅程</p>
+    </div>
+
+    <div class="steps-wrap">
+      <div class="step">
+        <div class="step-icon" data-n="1">🎮</div>
+        <h3>遊戲中購買</h3>
+        <p>在 Final Fantasy XIV 遊戲內找到我們的店員，購買抽獎機會，獲取專屬一次性抽獎唯一碼</p>
+      </div>
+      <div class="step">
+        <div class="step-icon" data-n="2">🔑</div>
+        <h3>輸入抽獎碼</h3>
+        <p>回到本網站，在首頁輸入框填入從店員獲得的唯一碼，系統將帶你進入抽獎頁面</p>
+      </div>
+      <div class="step">
+        <div class="step-icon" data-n="3">🎊</div>
+        <h3>撕籤揭曉</h3>
+        <p>進入抽獎頁面，從 50 個籤位中挑選你中意的號碼，撕開籤紙揭曉你的獎品！</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BUSINESS HOURS ===== -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">◈ 店鋪資訊 ◈</span>
+      <h2>營業時間</h2>
+      <div class="divider"></div>
+      <p>我們在以下時段於遊戲內開設店鋪（台灣時間 UTC+8）</p>
+    </div>
+
+    <div class="hours-wrap">
+      <div class="hours-card">
+        <div class="hours-head">
+          <span class="hours-head-icon">🕐</span>
+          <h3>每週固定營業時間</h3>
+          <span class="online-badge" style="margin-left:auto;">
+            <span class="pulse-dot"></span> 目前營業中
+          </span>
+        </div>
+        <table class="hours-table">
+          <tbody>
+            <tr>
+              <td>週一 ～ 週四</td>
+              <td><span class="time-tag">20:00 – 23:00</span></td>
+            </tr>
+            <tr>
+              <td>週五</td>
+              <td><span class="time-tag">19:30 – 23:30</span></td>
+            </tr>
+            <tr>
+              <td>週六</td>
+              <td><span class="time-tag">14:00 – 23:00</span></td>
+            </tr>
+            <tr>
+              <td>週日</td>
+              <td><span class="time-tag">14:00 – 22:00</span></td>
+            </tr>
+            <tr>
+              <td>台灣國定假日</td>
+              <td><span class="time-tag">14:00 – 23:00</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="hours-note">
+          ⚠️ 營業時間可能因遊戲例行維護或特殊狀況調整，請隨時關注公告與 Discord 通知
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURED SETS ===== -->
+<section class="section" style="background: var(--bg-secondary);">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">◈ 精選套組 ◈</span>
+      <h2>目前販售套組</h2>
+      <div class="divider"></div>
+      <p>每個套組皆有限量獎品，數量有限，先搶先得</p>
+    </div>
+
+    <div class="sets-grid">
+      <a href="sets.html#carbuncle" class="set-card">
+        <div class="set-card-art" style="background: linear-gradient(135deg, #18123a, #2a1545);">🦊</div>
+        <div class="set-card-body">
+          <div class="set-tag">限定套組</div>
+          <div class="set-title">卡本克魯的祝福</div>
+          <div class="set-meta">
+            <span class="set-meta-count">50 件獎品</span>
+            <span>S獎 ～ E獎</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="sets.html#warrior" class="set-card">
+        <div class="set-card-art" style="background: linear-gradient(135deg, #1e1010, #30181a);">⚔️</div>
+        <div class="set-card-body">
+          <div class="set-tag">主題套組 <span class="badge-new">NEW</span></div>
+          <div class="set-title">光之戰士傳說</div>
+          <div class="set-meta">
+            <span class="set-meta-count">30 件獎品</span>
+            <span>S獎 ～ D獎</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="sets.html#crystal" class="set-card">
+        <div class="set-card-art" style="background: linear-gradient(135deg, #0e1828, #121e34);">💎</div>
+        <div class="set-card-body">
+          <div class="set-tag">季節套組</div>
+          <div class="set-title">水晶都物語</div>
+          <div class="set-meta">
+            <span class="set-meta-count">40 件獎品</span>
+            <span>S獎 ～ E獎</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="sets.html" class="btn btn-outline">查看所有套組 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-main">
+    <div>
+      <div class="footer-brand-name">
+        <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
+          <path d="M16 2L28 16L16 30L4 16Z" fill="rgba(200,168,75,0.2)" stroke="#c8a84b" stroke-width="1.5"/>
+          <circle cx="16" cy="16" r="2.5" fill="#c8a84b"/>
+        </svg>
+        水晶一番賞
+      </div>
+      <p class="footer-brand-desc">
+        Crystal Ichiban Kuji<br>
+        Final Fantasy XIV 主題限定抽獎店<br>
+        本店於遊戲內市場亭販賣抽獎機會<br>
+        <br>
+        ⟡ 本網站為玩家自製，並非官方網站
+      </p>
+    </div>
+    <div class="footer-col">
+      <h4>快速連結</h4>
+      <ul>
+        <li><a href="index.html">首頁</a></li>
+        <li><a href="staff.html">店員介紹</a></li>
+        <li><a href="sets.html">獎品套組</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>聯絡資訊</h4>
+      <ul>
+        <li><a href="#">遊戲內私訊店員</a></li>
+        <li><a href="#">Discord 伺服器</a></li>
+        <li><a href="#">抽獎規則說明</a></li>
+        <li><a href="#">常見問題</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 水晶一番賞 · 玩家自製非官方網站</span>
+    <span>Final Fantasy XIV © SQUARE ENIX CO., LTD. All Rights Reserved.</span>
+  </div>
+</footer>
+
+<script>
+  // Floating particles
+  (function() {
+    const c = document.getElementById('particles');
+    for (let i = 0; i < 22; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const s = Math.random() * 2.5 + 1;
+      p.style.cssText = `
+        width:${s}px; height:${s}px;
+        left:${Math.random()*100}%;
+        animation-duration:${Math.random()*14+10}s;
+        animation-delay:${Math.random()*12}s;
+      `;
+      c.appendChild(p);
+    }
+  })();
+
+  // Code input
+  const inp = document.getElementById('codeInput');
+  const err = document.getElementById('codeError');
+
+  inp.addEventListener('input', function() {
+    const pos = this.selectionStart;
+    this.value = this.value.toUpperCase();
+    this.setSelectionRange(pos, pos);
+    err.style.display = 'none';
+  });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitCode(); });
+
+  function submitCode() {
+    const code = inp.value.trim();
+    if (!code) {
+      err.textContent = '請輸入抽獎碼';
+      err.style.display = 'block';
+      inp.focus();
+      return;
+    }
+    // Frontend demo: accept any non-empty code
+    err.style.display = 'none';
+    window.location.href = `lottery.html?code=${encodeURIComponent(code)}`;
+  }
+</script>
 </body>
 </html>

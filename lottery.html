@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>抽獎 — 水晶一番賞</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="./abc.min.js"></script>
+  <style>
+    body { overflow-x: hidden; }
+
+    /* ===== LOTTERY HEADER ===== */
+    .lottery-header {
+      padding: 80px 0 2rem;
+      background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(107,79,154,0.14) 0%, transparent 70%);
+      border-bottom: 1px solid var(--border);
+    }
+    .lottery-header-inner {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .set-title-block .set-series-tag {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.4rem;
+    }
+    .set-title-block h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+    .code-display {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 0.3rem 0.8rem;
+      border-radius: var(--radius);
+    }
+    .code-display span { color: var(--accent-gold); font-weight: 500; letter-spacing: 0.1em; }
+
+    .lottery-stats {
+      display: flex;
+      gap: 1rem;
+      align-items: stretch;
+      flex-shrink: 0;
+    }
+    .lstat {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 0.9rem 1.4rem;
+      text-align: center;
+      min-width: 80px;
+    }
+    .lstat-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      line-height: 1;
+      margin-bottom: 0.2rem;
+    }
+    .lstat-lbl {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* Progress */
+    .lottery-progress {
+      margin-top: 1.25rem;
+      max-width: 500px;
+    }
+    .prog-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    .prog-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent-gold-dim), var(--accent-gold));
+      transition: width 0.6s ease;
+    }
+
+    /* ===== FILTER BAR ===== */
+    .filter-bar {
+      padding: 1.25rem 0;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 60px;
+      z-index: 50;
+    }
+    .filter-bar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .view-tabs {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .view-tab {
+      padding: 0.45rem 1.1rem;
+      border-radius: var(--radius);
+      font-size: 0.82rem;
+      font-family: "Noto Sans TC", sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--border-light);
+      background: transparent;
+      color: var(--text-secondary);
+    }
+    .view-tab.active {
+      background: var(--bg-card);
+      color: var(--accent-gold);
+      border-color: var(--accent-gold-dim);
+    }
+    .view-tab:hover:not(.active) { color: var(--text-primary); background: var(--bg-card); }
+
+    .tier-legend {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+    .legend-count { color: var(--accent-gold); font-weight: 500; }
+
+    /* ===== PRIZE GRID ===== */
+    .prizes-main { padding: 2.5rem 0 4rem; }
+
+    .prize-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 0.75rem;
+    }
+
+    /* Individual prize card */
+    .pcard {
+      aspect-ratio: 2/3;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0.5rem 0.25rem;
+      user-select: none;
+    }
+
+    .pcard.available:hover {
+      transform: translateY(-4px) scale(1.04);
+      border-color: var(--border-light);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 12px rgba(200,168,75,0.12);
+      z-index: 2;
+    }
+
+    .pcard.drawn {
+      cursor: default;
+      opacity: 0.45;
+      filter: grayscale(0.5);
+    }
+    .pcard.drawn:hover { transform: none; box-shadow: none; }
+
+    .pcard.hidden-mode { display: none; }
+
+    .pcard-num {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .pcard .tier-badge {
+      width: 20px; height: 20px;
+      font-size: 0.62rem;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Card back pattern overlay for available cards */
+    .pcard.available::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url('./card-back.svg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.25;
+      z-index: 0;
+    }
+    .pcard.available .pcard-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* drawn overlay */
+    .drawn-stamp {
+      position: absolute;
+      top: 0.3rem; right: 0.3rem;
+      font-size: 0.55rem;
+      padding: 0.1rem 0.3rem;
+      background: rgba(0,0,0,0.6);
+      color: var(--text-muted);
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+    }
+    .drawn-prize-name {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      padding: 0 0.2rem;
+      margin-top: 0.2rem;
+    }
+
+    /* ===== DRAW MODAL ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.88);
+      z-index: 2000;
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.visible { display: flex; }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      max-width: 540px;
+      width: 92%;
+      text-align: center;
+      position: relative;
+      box-shadow: var(--shadow), 0 0 40px rgba(200,168,75,0.1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      color: var(--text-muted);
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { color: var(--text-primary); border-color: var(--text-muted); }
+
+    .modal-title {
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Turn.js book container in modal */
+    .book-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .book {
+      width: 420px;
+      height: 240px;
+      box-shadow: 4px 4px 20px rgba(0,0,0,0.6);
+      border-radius: 6px;
+      border: 2px solid #a49977;
+      overflow: visible !important;
+    }
+    .page {
+      width: 100%; height: 100%;
+      background-image: url('./card-back.svg');
+      background-size: cover;
+      background-position: center;
+      backface-visibility: hidden;
+      border-radius: 4px;
+    }
+    .page2 {
+      width: 100%; height: 100%;
+      background-image: url('./card-silver.png');
+      background-size: cover;
+      background-position: center;
+      backface-visibility: hidden;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Prize reveal (shown after tear) */
+    .prize-reveal {
+      display: none;
+      animation: fadeUp 0.5s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .prize-reveal-tier {
+      width: 56px; height: 56px;
+      font-size: 1.3rem;
+      font-weight: 800;
+      border-radius: var(--radius-lg);
+      margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .prize-reveal-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+    }
+    .prize-reveal-desc {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.25rem;
+    }
+
+    /* instruction hint */
+    .tear-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    /* Audio */
+    audio { display: none; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      display: none;
+    }
+    .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.35; }
+    .empty-state h3 { font-size: 1rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .empty-state p  { font-size: 0.82rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="brand-crystal">
+      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" class="nav-crystal-svg">
+        <path d="M16 2L28 16L16 30L4 16Z" fill="rgba(200,168,75,0.14)" stroke="#c8a84b" stroke-width="1.5"/>
+        <path d="M16 8L22 16L16 24L10 16Z" fill="rgba(200,168,75,0.28)" stroke="#c8a84b" stroke-width="1"/>
+        <circle cx="16" cy="16" r="2.5" fill="#c8a84b"/>
+      </svg>
+    </div>
+    <div>
+      <span class="brand-text-main">水晶一番賞</span>
+      <span class="brand-text-sub">CRYSTAL ICHIBAN KUJI</span>
+    </div>
+  </a>
+  <ul class="navbar-nav">
+    <li><a href="index.html">首頁</a></li>
+    <li><a href="staff.html">店員介紹</a></li>
+    <li><a href="sets.html">獎品套組</a></li>
+    <li><a href="index.html#enter" class="nav-cta">換碼再抽</a></li>
+  </ul>
+</nav>
+
+<!-- LOTTERY HEADER -->
+<div class="lottery-header">
+  <div class="container">
+    <div class="lottery-header-inner">
+      <div class="set-title-block">
+        <div class="set-series-tag">◈ 限定套組</div>
+        <h1>卡本克魯的祝福</h1>
+        <div class="code-display">
+          抽獎碼：<span id="displayCode">—</span>
+        </div>
+        <div class="lottery-progress">
+          <div class="prog-label">
+            <span>已抽出</span>
+            <span id="progText">— / 50</span>
+          </div>
+          <div class="prog-bar">
+            <div class="prog-fill" id="progFill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="lottery-stats">
+        <div class="lstat"><div class="lstat-val" id="statTotal">50</div><div class="lstat-lbl">總件數</div></div>
+        <div class="lstat"><div class="lstat-val" id="statDrawn">0</div><div class="lstat-lbl">已抽出</div></div>
+        <div class="lstat"><div class="lstat-val" id="statLeft">50</div><div class="lstat-lbl">剩餘</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="container">
+    <div class="filter-bar-inner">
+      <div class="view-tabs">
+        <button class="view-tab active" data-mode="all" onclick="setMode('all')">全部顯示</button>
+        <button class="view-tab" data-mode="available" onclick="setMode('available')">僅顯示可抽</button>
+      </div>
+      <div class="tier-legend">
+        <div class="legend-item"><span class="tier-badge tier-s" style="width:16px;height:16px;font-size:0.55rem;">S</span><span>×1</span></div>
+        <div class="legend-item"><span class="tier-badge tier-a" style="width:16px;height:16px;font-size:0.55rem;">A</span><span>×3</span></div>
+        <div class="legend-item"><span class="tier-badge tier-b" style="width:16px;height:16px;font-size:0.55rem;">B</span><span>×5</span></div>
+        <div class="legend-item"><span class="tier-badge tier-c" style="width:16px;height:16px;font-size:0.55rem;">C</span><span>×10</span></div>
+        <div class="legend-item"><span class="tier-badge tier-d" style="width:16px;height:16px;font-size:0.55rem;">D</span><span>×15</span></div>
+        <div class="legend-item"><span class="tier-badge tier-e" style="width:16px;height:16px;font-size:0.55rem;">E</span><span>×16</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRIZES MAIN -->
+<section class="prizes-main">
+  <div class="container">
+    <div class="prize-grid" id="prizeGrid"></div>
+    <div class="empty-state" id="emptyState">
+      <div class="empty-state-icon">🎉</div>
+      <h3>所有獎品已全數抽出！</h3>
+      <p>本套組已完結，歡迎關注我們的新套組資訊</p>
+      <a href="sets.html" class="btn btn-outline" style="margin-top:1rem;">查看其他套組</a>
+    </div>
+  </div>
+</section>
+
+<!-- DRAW MODAL -->
+<div class="modal-overlay" id="drawModal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalCloseBtn" onclick="closeModal()">✕</button>
+    <p class="modal-title">⟡ 撕開籤紙，揭曉獎品 ⟡</p>
+
+    <div class="tear-hint" id="tearHint">
+      <span>↖ 從左上角拖動以撕開籤紙</span>
+    </div>
+
+    <div class="book-wrap">
+      <div class="book" id="drawBook">
+        <div class="page2" id="modalPrizePage"></div>
+        <div class="page"></div>
+      </div>
+    </div>
+
+    <div class="prize-reveal" id="prizeReveal">
+      <div class="prize-reveal-tier" id="revealTierBadge"></div>
+      <div class="prize-reveal-name" id="revealName"></div>
+      <div class="prize-reveal-desc" id="revealDesc"></div>
+      <button class="btn btn-primary" onclick="closeModal()">收下獎品 🎉</button>
+    </div>
+  </div>
+</div>
+
+<audio id="tearSound" src="./paper-ripping-dechirure-de-papier-audio-not-edited-18466.mp3"></audio>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-main">
+    <div>
+      <div class="footer-brand-name">
+        <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
+          <path d="M16 2L28 16L16 30L4 16Z" fill="rgba(200,168,75,0.2)" stroke="#c8a84b" stroke-width="1.5"/>
+          <circle cx="16" cy="16" r="2.5" fill="#c8a84b"/>
+        </svg>
+        水晶一番賞
+      </div>
+      <p class="footer-brand-desc">
+        Crystal Ichiban Kuji<br>Final Fantasy XIV 主題限定抽獎店<br><br>
+        ⟡ 本網站為玩家自製，並非官方網站
+      </p>
+    </div>
+    <div class="footer-col">
+      <h4>快速連結</h4>
+      <ul>
+        <li><a href="index.html">首頁</a></li>
+        <li><a href="staff.html">店員介紹</a></li>
+        <li><a href="sets.html">獎品套組</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>聯絡資訊</h4>
+      <ul>
+        <li><a href="#">遊戲內私訊店員</a></li>
+        <li><a href="#">Discord 伺服器</a></li>
+        <li><a href="#">抽獎規則說明</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 水晶一番賞 · 玩家自製非官方網站</span>
+    <span>Final Fantasy XIV © SQUARE ENIX CO., LTD. All Rights Reserved.</span>
+  </div>
+</footer>
+
+<script>
+// ===== PRIZE DATA =====
+const PRIZE_DEFINITIONS = [
+  { tier: 'S', name: '金色卡本克魯坐騎道具',   desc: '召喚限定金色卡本克魯坐騎，全服稀有外觀' },
+  { tier: 'A', name: '迷你卡本克魯寵物召喚石', desc: '跟隨你的超可愛迷你卡本克魯' },
+  { tier: 'A', name: '寶石鑲嵌頭飾道具',       desc: '卡本克魯風格精緻頭飾外觀' },
+  { tier: 'A', name: '琉璃手鐲外觀道具',       desc: '水晶材質限定手鐲裝飾' },
+  { tier: 'B', name: '卡本克魯雕像家具',       desc: '可放置於個人住宅的精緻雕像' },
+  { tier: 'B', name: '卡本克魯壁畫道具',       desc: '客廳裝飾用精緻壁掛畫' },
+  { tier: 'B', name: '水晶燈具家具',           desc: '柔和光芒的卡本克魯造型燈' },
+  { tier: 'B', name: '魔法地毯道具',           desc: '卡本克魯圖案限定地毯' },
+  { tier: 'B', name: '珠簾窗飾道具',           desc: '透明水晶風格窗簾裝飾' },
+  { tier: 'C', name: '卡本克魯金染料組 I',     desc: '特製金色系染料套組（含5色）' },
+  { tier: 'C', name: '卡本克魯金染料組 II',    desc: '特製金色系染料套組（含5色）' },
+  { tier: 'C', name: '卡本克魯金染料組 III',   desc: '特製金色系染料套組（含5色）' },
+  { tier: 'C', name: '卡本克魯金染料組 IV',    desc: '特製金色系染料套組（含5色）' },
+  { tier: 'C', name: '卡本克魯金染料組 V',     desc: '特製金色系染料套組（含5色）' },
+  { tier: 'C', name: '卡本克魯翡翠染料組 I',   desc: '特製翡翠綠系染料套組（含5色）' },
+  { tier: 'C', name: '卡本克魯翡翠染料組 II',  desc: '特製翡翠綠系染料套組（含5色）' },
+  { tier: 'C', name: '卡本克魯翡翠染料組 III', desc: '特製翡翠綠系染料套組（含5色）' },
+  { tier: 'C', name: '卡本克魯翡翠染料組 IV',  desc: '特製翡翠綠系染料套組（含5色）' },
+  { tier: 'C', name: '卡本克魯翡翠染料組 V',   desc: '特製翡翠綠系染料套組（含5色）' },
+  { tier: 'D', name: '卡本克魯項鍊道具 I',     desc: '精緻水晶吊墜頸鏈外觀' },
+  { tier: 'D', name: '卡本克魯項鍊道具 II',    desc: '精緻水晶吊墜頸鏈外觀' },
+  { tier: 'D', name: '卡本克魯項鍊道具 III',   desc: '精緻水晶吊墜頸鏈外觀' },
+  { tier: 'D', name: '卡本克魯項鍊道具 IV',    desc: '精緻水晶吊墜頸鏈外觀' },
+  { tier: 'D', name: '卡本克魯項鍊道具 V',     desc: '精緻水晶吊墜頸鏈外觀' },
+  { tier: 'D', name: '卡本克魯耳環道具 I',     desc: '閃亮寶石耳飾外觀' },
+  { tier: 'D', name: '卡本克魯耳環道具 II',    desc: '閃亮寶石耳飾外觀' },
+  { tier: 'D', name: '卡本克魯耳環道具 III',   desc: '閃亮寶石耳飾外觀' },
+  { tier: 'D', name: '卡本克魯耳環道具 IV',    desc: '閃亮寶石耳飾外觀' },
+  { tier: 'D', name: '卡本克魯耳環道具 V',     desc: '閃亮寶石耳飾外觀' },
+  { tier: 'D', name: '水晶髮飾道具 I',         desc: '點綴水晶的精緻髮箍' },
+  { tier: 'D', name: '水晶髮飾道具 II',        desc: '點綴水晶的精緻髮箍' },
+  { tier: 'D', name: '水晶髮飾道具 III',       desc: '點綴水晶的精緻髮箍' },
+  { tier: 'D', name: '水晶髮飾道具 IV',        desc: '點綴水晶的精緻髮箍' },
+  { tier: 'D', name: '水晶髮飾道具 V',         desc: '點綴水晶的精緻髮箍' },
+  { tier: 'E', name: '卡本克魯主題食物套 1',   desc: '高級料理道具 × 3' },
+  { tier: 'E', name: '卡本克魯主題食物套 2',   desc: '高級料理道具 × 3' },
+  { tier: 'E', name: '卡本克魯主題食物套 3',   desc: '高級料理道具 × 3' },
+  { tier: 'E', name: '卡本克魯主題食物套 4',   desc: '高級料理道具 × 3' },
+  { tier: 'E', name: '卡本克魯主題食物套 5',   desc: '高級料理道具 × 3' },
+  { tier: 'E', name: '卡本克魯主題食物套 6',   desc: '高級料理道具 × 3' },
+  { tier: 'E', name: '卡本克魯主題食物套 7',   desc: '高級料理道具 × 3' },
+  { tier: 'E', name: '卡本克魯主題食物套 8',   desc: '高級料理道具 × 3' },
+  { tier: 'E', name: '強化石材料組 1',          desc: '裝備強化用稀有素材包' },
+  { tier: 'E', name: '強化石材料組 2',          desc: '裝備強化用稀有素材包' },
+  { tier: 'E', name: '強化石材料組 3',          desc: '裝備強化用稀有素材包' },
+  { tier: 'E', name: '強化石材料組 4',          desc: '裝備強化用稀有素材包' },
+  { tier: 'E', name: '強化石材料組 5',          desc: '裝備強化用稀有素材包' },
+  { tier: 'E', name: '強化石材料組 6',          desc: '裝備強化用稀有素材包' },
+  { tier: 'E', name: '強化石材料組 7',          desc: '裝備強化用稀有素材包' },
+  { tier: 'E', name: '強化石材料組 8',          desc: '裝備強化用稀有素材包' },
+];
+
+// ===== INIT =====
+const urlParams = new URLSearchParams(window.location.search);
+const CODE = urlParams.get('code') || 'DEMO';
+const STORAGE_KEY = 'ichiban_' + CODE;
+const LAYOUT_KEY  = 'ichiban_layout_' + CODE;
+
+document.getElementById('displayCode').textContent = CODE;
+
+// ---- Prize layout: shuffle once per code and persist ----
+function getLayout() {
+  try {
+    const s = localStorage.getItem(LAYOUT_KEY);
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+
+  // Deterministic-ish shuffle based on code hash
+  const arr = PRIZE_DEFINITIONS.map((p, i) => ({ ...p, id: i }));
+  let seed = 0;
+  for (let i = 0; i < CODE.length; i++) seed = (seed * 31 + CODE.charCodeAt(i)) & 0xffffffff;
+
+  function seededRand() {
+    seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+    return (seed >>> 0) / 4294967296;
+  }
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(seededRand() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  // positions 1..50
+  const layout = arr.map((p, i) => ({ ...p, pos: i + 1 }));
+
+  try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout)); } catch(e) {}
+  return layout;
+}
+
+function getDrawnSet() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) return new Set(JSON.parse(s));
+  } catch(e) {}
+
+  // Pre-draw a random subset to simulate other players
+  const layout = getLayout();
+  let seed2 = 0;
+  for (let i = 0; i < CODE.length; i++) seed2 = (seed2 * 37 + CODE.charCodeAt(i)) & 0xffffffff;
+  function r2() {
+    seed2 = (seed2 * 22695477 + 1) & 0xffffffff;
+    return (seed2 >>> 0) / 4294967296;
+  }
+  const preCount = Math.floor(r2() * 10) + 3; // 3–12
+  const drawn = new Set();
+  while (drawn.size < preCount) {
+    drawn.add(Math.floor(r2() * 50) + 1);
+  }
+  saveDrawnSet(drawn);
+  return drawn;
+}
+
+function saveDrawnSet(set) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...set])); } catch(e) {}
+}
+
+const LAYOUT = getLayout();
+const drawnSet = getDrawnSet();
+
+// ===== RENDER GRID =====
+let currentMode = 'all';
+let pendingPrize = null;
+
+function updateStats() {
+  const total = 50;
+  const drawn = drawnSet.size;
+  const left  = total - drawn;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statDrawn').textContent = drawn;
+  document.getElementById('statLeft').textContent  = left;
+  document.getElementById('progText').textContent  = drawn + ' / ' + total;
+  document.getElementById('progFill').style.width  = (drawn / total * 100).toFixed(1) + '%';
+
+  // Empty state
+  document.getElementById('emptyState').style.display = (left === 0) ? 'block' : 'none';
+}
+
+function renderGrid() {
+  const grid = document.getElementById('prizeGrid');
+  grid.innerHTML = '';
+
+  LAYOUT.forEach(prize => {
+    const isDrawn = drawnSet.has(prize.pos);
+
+    const div = document.createElement('div');
+    div.className = 'pcard ' + (isDrawn ? 'drawn' : 'available');
+    if (currentMode === 'available' && isDrawn) div.classList.add('hidden-mode');
+
+    if (isDrawn) {
+      div.innerHTML = `
+        <span class="drawn-stamp">已抽</span>
+        <div class="pcard-num" style="opacity:0.5;">${prize.pos}</div>
+        <span class="tier-badge tier-${prize.tier.toLowerCase()}">${prize.tier}</span>
+        <div class="drawn-prize-name">${prize.name}</div>
+      `;
+    } else {
+      div.innerHTML = `
+        <div class="pcard-content">
+          <div class="pcard-num">${prize.pos}</div>
+          <span class="tier-badge tier-${prize.tier.toLowerCase()}">${prize.tier}</span>
+        </div>
+      `;
+      div.addEventListener('click', () => openDraw(prize));
+    }
+
+    grid.appendChild(div);
+  });
+
+  updateStats();
+}
+
+// ===== DRAW MODAL =====
+let bookInitialized = false;
+let tearDone = false;
+
+function openDraw(prize) {
+  pendingPrize = prize;
+  tearDone = false;
+
+  document.getElementById('tearHint').style.display = 'flex';
+  document.getElementById('prizeReveal').style.display = 'none';
+  document.getElementById('modalCloseBtn').style.visibility = 'hidden';
+
+  // Prize page content (hidden until torn)
+  const tierClass = 'tier-' + prize.tier.toLowerCase();
+  document.getElementById('modalPrizePage').innerHTML = `
+    <div style="text-align:center; padding:1.5rem; color:#333;">
+      <div style="
+        width:52px; height:52px; border-radius:8px;
+        display:inline-flex; align-items:center; justify-content:center;
+        font-size:1.4rem; font-weight:800; margin-bottom:0.8rem;
+        ${getTierStyle(prize.tier)}
+      ">${prize.tier}</div>
+      <div style="font-size:0.95rem; font-weight:700; margin-bottom:0.3rem; color:#1a1a2e;">${prize.name}</div>
+      <div style="font-size:0.75rem; color:#4a4560;">${prize.desc}</div>
+    </div>
+  `;
+
+  // Reinitialize turn.js
+  try { $('#drawBook').turn('destroy'); } catch(e) {}
+  bookInitialized = false;
+
+  document.getElementById('drawModal').classList.add('visible');
+
+  setTimeout(() => {
+    $('#drawBook').turn({
+      width: 420,
+      height: 240,
+      autoCenter: true,
+      display: 'single',
+      gradients: true,
+      acceleration: true,
+      corners: 'tl',
+      peel: 'tl',
+      elevation: 50,
+      pages: 2,
+      page: 2,
+      when: {
+        end: function() {
+          try { document.getElementById('tearSound').play(); } catch(e) {}
+        },
+        first: function() {
+          $('#drawBook').turn('disable', true);
+          if (!tearDone) {
+            tearDone = true;
+            onTearComplete(prize);
+          }
+        }
+      }
+    });
+    bookInitialized = true;
+  }, 120);
+}
+
+function getTierStyle(tier) {
+  const styles = {
+    S: 'background:linear-gradient(135deg,#d44,#f80); color:#fff;',
+    A: 'background:linear-gradient(135deg,#c8a84b,#e8c975); color:#09090f;',
+    B: 'background:linear-gradient(135deg,#6b4f9a,#9b7fcb); color:#fff;',
+    C: 'background:linear-gradient(135deg,#3a7fc1,#60a0e0); color:#fff;',
+    D: 'background:linear-gradient(135deg,#3aa8a8,#5ad0c8); color:#09090f;',
+    E: 'background:linear-gradient(135deg,#4a5568,#718096); color:#fff;',
+  };
+  return styles[tier] || '';
+}
+
+function onTearComplete(prize) {
+  drawnSet.add(prize.pos);
+  saveDrawnSet(drawnSet);
+
+  document.getElementById('tearHint').style.display = 'none';
+  document.getElementById('modalCloseBtn').style.visibility = 'visible';
+
+  // Show reveal section
+  const tierClass = 'tier-' + prize.tier.toLowerCase();
+  document.getElementById('revealTierBadge').className = 'prize-reveal-tier ' + tierClass;
+  document.getElementById('revealTierBadge').textContent = prize.tier + ' 獎';
+  document.getElementById('revealName').textContent = prize.name;
+  document.getElementById('revealDesc').textContent  = prize.desc;
+  document.getElementById('prizeReveal').style.display = 'block';
+
+  // Update grid card to drawn state
+  renderGrid();
+}
+
+function closeModal() {
+  if (!tearDone && bookInitialized) {
+    // User closing without tearing — do nothing (force them to tear or confirm)
+    // Actually allow close but don't mark as drawn
+  }
+  document.getElementById('drawModal').classList.remove('visible');
+  try { $('#drawBook').turn('destroy'); } catch(e) {}
+  bookInitialized = false;
+  pendingPrize = null;
+}
+
+// Close on overlay click
+document.getElementById('drawModal').addEventListener('click', function(e) {
+  if (e.target === this && tearDone) closeModal();
+});
+
+// ===== VIEW MODE =====
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.view-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+  renderGrid();
+}
+
+// ===== START =====
+renderGrid();
+</script>
+</body>
+</html>
