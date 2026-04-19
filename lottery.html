@@ -248,17 +248,27 @@
     }
 
     /* ===== DRAW MODAL ===== */
+    /* Use visibility/opacity instead of display:none so the book element
+       always has layout — turn.js needs to measure dimensions on init */
     .modal-overlay {
-      display: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.88);
       z-index: 2000;
       backdrop-filter: blur(6px);
-      align-items: center;
-      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
     }
-    .modal-overlay.visible { display: flex; }
+    .modal-overlay.visible {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+    }
 
     .modal-box {
       background: var(--bg-card);
@@ -304,8 +314,7 @@
     }
     .book {
       display: inline-block;
-      width: 420px;
-      height: 240px;
+      /* width/height set dynamically by JS to match responsive bookW/bookH */
       box-shadow: 4px 4px 20px rgba(0,0,0,0.6);
       border-radius: 6px;
       border: 2px solid #a49977;
@@ -738,43 +747,45 @@ function openDraw(prize) {
     </div>
   `;
 
-  // Reinitialize turn.js
+  // Destroy any previous instance
   try { $('#drawBook').turn('destroy'); } catch(e) {}
   bookInitialized = false;
 
-  document.getElementById('drawModal').classList.add('visible');
+  // Init turn.js BEFORE showing modal.
+  // The modal uses visibility:hidden (not display:none), so the book
+  // always has a valid layout and turn.js can measure it correctly.
+  const bookW = Math.min(420, window.innerWidth * 0.85 - 64);
+  const bookH = Math.round(bookW * (240 / 420));
 
-  // Double rAF ensures the modal has fully painted before turn.js measures dimensions
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      $('#drawBook').turn({
-        width: 420,
-        height: 240,
-        autoCenter: true,
-        display: 'single',
-        gradients: true,
-        acceleration: true,
-        corners: 'tl',
-        peel: 'tl',
-        elevation: 50,
-        pages: 2,
-        page: 2,
-        when: {
-          end: function() {
-            try { document.getElementById('tearSound').play(); } catch(e) {}
-          },
-          first: function() {
-            $('#drawBook').turn('disable', true);
-            if (!tearDone) {
-              tearDone = true;
-              onTearComplete(prize);
-            }
-          }
+  $('#drawBook').turn({
+    width:  bookW,
+    height: bookH,
+    autoCenter: true,
+    display: 'single',
+    gradients: true,
+    acceleration: true,
+    corners: 'tl',
+    peel: 'tl',
+    elevation: 50,
+    pages: 2,
+    page: 2,
+    when: {
+      end: function() {
+        try { document.getElementById('tearSound').play(); } catch(e) {}
+      },
+      first: function() {
+        $('#drawBook').turn('disable', true);
+        if (!tearDone) {
+          tearDone = true;
+          onTearComplete(prize);
         }
-      });
-      bookInitialized = true;
-    });
+      }
+    }
   });
+  bookInitialized = true;
+
+  // Show modal after turn.js is ready
+  document.getElementById('drawModal').classList.add('visible');
 }
 
 function getTierStyle(tier) {
