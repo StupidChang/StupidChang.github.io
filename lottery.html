@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>抽獎 — 水晶一番賞</title>
+  <title>抽獎 — 魔法俱樂部</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="./abc.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
   <style>
     body { overflow-x: hidden; }
 
@@ -160,13 +160,13 @@
 
     .prize-grid {
       display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      gap: 0.75rem;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
     }
 
     /* Individual prize card */
     .pcard {
-      aspect-ratio: 2/3;
+      aspect-ratio: 5/3;
       border-radius: var(--radius);
       border: 1px solid var(--border);
       overflow: hidden;
@@ -200,16 +200,21 @@
     .pcard.hidden-mode { display: none; }
 
     .pcard-num {
-      font-size: 1rem;
+      font-size: 1.8rem;
       font-weight: 700;
       color: var(--text-primary);
       line-height: 1;
-      margin-bottom: 0.3rem;
+      letter-spacing: 0.06em;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
     }
+    /* Drawn card info */
     .pcard .tier-badge {
-      width: 20px; height: 20px;
-      font-size: 0.62rem;
-      margin-bottom: 0.25rem;
+      width: 32px; height: 32px;
+      font-size: 0.82rem;
+      margin-bottom: 0.4rem;
+    }
+    .drawn-prize-name {
+      font-size: 0.75rem;
     }
 
     /* Card back pattern overlay for available cards */
@@ -217,10 +222,10 @@
       content: '';
       position: absolute;
       inset: 0;
-      background-image: url('./img/card-back2.png');
+      background-image: url('./img/043.JPG');
       background-size: cover;
       background-position: center;
-      opacity: 0.25;
+      opacity: 0.55;
       z-index: 0;
     }
     .pcard.available .pcard-content {
@@ -306,38 +311,91 @@
       margin-bottom: 1.25rem;
     }
 
-    /* Turn.js book container in modal */
+    /* ===== TURN.JS BOOK (primary – drag from corner) ===== */
     .book-wrap {
       text-align: center;
       overflow: visible;
       margin-bottom: 1.5rem;
     }
-    .book {
-      display: inline-block;
-      /* width/height set dynamically by JS to match responsive bookW/bookH */
-      box-shadow: 4px 4px 20px rgba(0,0,0,0.6);
-      border-radius: 6px;
-      border: 2px solid #a49977;
-      overflow: visible !important;
-    }
-    .page {
+    /* Turn.js pages — backgrounds set via inline styles in JS */
+    .turn-page {
       width: 100%; height: 100%;
-      background-image: url('./img/card-back2.png');
-      background-size: cover;
-      background-position: center;
-      backface-visibility: hidden;
-      border-radius: 4px;
-    }
-    .page2 {
-      width: 100%; height: 100%;
-      background-image: url('./card-silver.png');
-      background-size: cover;
-      background-position: center;
-      backface-visibility: hidden;
-      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    /* Make all turn.js internal wrappers transparent so prize-bg shows through */
+    #drawBook > * {
+      background: transparent !important;
+    }
+
+    /* ===== CUSTOM TEAR TICKET ANIMATION (CSS fallback – click) ===== */
+    .ticket-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      height: 210px;
+      margin: 0 auto 1.5rem;
+      cursor: pointer;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid #a49977;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.55);
+      user-select: none;
+    }
+    .ticket-prize-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #f5f0e8 0%, #e8dfc8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ticket-top,
+    .ticket-bottom {
+      position: absolute;
+      inset: 0;
+      background: url('./img/card-back2.png') center center / cover no-repeat;
+      transition: transform 0.62s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity   0.52s ease;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    .ticket-top {
+      transform-origin: top center;
+      clip-path: polygon(
+        0% 0%, 100% 0%,
+        100% 50%, 96% 53%, 92% 47%, 88% 54%, 84% 46%,
+        80% 53%, 76% 47%, 72% 54%, 68% 46%, 64% 53%,
+        60% 47%, 56% 54%, 52% 46%, 48% 53%, 44% 47%,
+        40% 54%, 36% 46%, 32% 53%, 28% 47%, 24% 54%,
+        20% 46%, 16% 53%, 12% 47%, 8%  54%, 4%  46%,
+        0% 50%
+      );
+    }
+    .ticket-bottom {
+      transform-origin: bottom center;
+      clip-path: polygon(
+        0% 50%,
+        4%  46%, 8%  54%, 12% 47%, 16% 53%, 20% 46%,
+        24% 54%, 28% 47%, 32% 53%, 36% 46%, 40% 54%,
+        44% 47%, 48% 53%, 52% 46%, 56% 54%, 60% 47%,
+        64% 53%, 68% 46%, 72% 54%, 76% 47%, 80% 53%,
+        84% 46%, 88% 54%, 92% 47%, 96% 53%, 100% 50%,
+        100% 100%, 0% 100%
+      );
+    }
+    .ticket-wrapper.torn .ticket-top {
+      transform: translateY(-118%) rotate(-4deg);
+      opacity: 0;
+    }
+    .ticket-wrapper.torn .ticket-bottom {
+      transform: translateY(118%) rotate(4deg);
+      opacity: 0;
+    }
+    .ticket-wrapper:not(.torn):hover .ticket-top,
+    .ticket-wrapper:not(.torn):hover .ticket-bottom {
+      filter: brightness(1.1);
     }
 
     /* Prize reveal (shown after tear) */
@@ -407,8 +465,8 @@
       </svg>
     </div>
     <div>
-      <span class="brand-text-main">水晶一番賞</span>
-      <span class="brand-text-sub">CRYSTAL ICHIBAN KUJI</span>
+      <span class="brand-text-main">魔法俱樂部</span>
+      <span class="brand-text-sub">MAGIC CLUB</span>
     </div>
   </a>
   <ul class="navbar-nav">
@@ -488,13 +546,25 @@
     <p class="modal-title">⟡ 撕開籤紙，揭曉獎品 ⟡</p>
 
     <div class="tear-hint" id="tearHint">
-      <span>↖ 從左上角拖動以撕開籤紙</span>
+      <i class="fa-solid fa-hand-pointer"></i>
+      <span id="tearHintText">從左上角拖動以撕開籤紙</span>
     </div>
 
-    <div class="book-wrap">
-      <div class="book" id="drawBook">
-        <div class="page2" id="modalPrizePage"></div>
-        <div class="page"></div>
+    <!-- Turn.js drag-peel (primary) -->
+    <div id="bookSection">
+      <div class="book-wrap" id="bookWrap">
+        <!-- Rebuilt entirely in JS on every open -->
+      </div>
+    </div>
+
+    <!-- CSS click-tear (fallback) -->
+    <div id="ticketSection" style="display:none;">
+      <div class="ticket-wrapper" id="ticketWrapper" onclick="tearTicket()">
+        <div class="ticket-prize-bg">
+          <div id="modalPrizePage2"></div>
+        </div>
+        <div class="ticket-top"></div>
+        <div class="ticket-bottom"></div>
       </div>
     </div>
 
@@ -518,10 +588,10 @@
           <path d="M16 2L28 16L16 30L4 16Z" fill="rgba(200,168,75,0.2)" stroke="#c8a84b" stroke-width="1.5"/>
           <circle cx="16" cy="16" r="2.5" fill="#c8a84b"/>
         </svg>
-        水晶一番賞
+        魔法俱樂部
       </div>
       <p class="footer-brand-desc">
-        Crystal Ichiban Kuji<br>Final Fantasy XIV 主題限定抽獎店<br><br>
+        Magic Club<br>Final Fantasy XIV 主題限定抽獎店<br><br>
         ⟡ 本網站為玩家自製，並非官方網站
       </p>
     </div>
@@ -543,7 +613,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2025 水晶一番賞 · 玩家自製非官方網站</span>
+    <span>© 2025 魔法俱樂部 · 玩家自製非官方網站</span>
     <span>Final Fantasy XIV © SQUARE ENIX CO., LTD. All Rights Reserved.</span>
   </div>
 </footer>
@@ -708,7 +778,6 @@ function renderGrid() {
       div.innerHTML = `
         <div class="pcard-content">
           <div class="pcard-num">${prize.pos}</div>
-          <span class="tier-badge tier-${prize.tier.toLowerCase()}">${prize.tier}</span>
         </div>
       `;
       div.addEventListener('click', () => openDraw(prize));
@@ -721,20 +790,10 @@ function renderGrid() {
 }
 
 // ===== DRAW MODAL =====
-let bookInitialized = false;
 let tearDone = false;
 
-function openDraw(prize) {
-  pendingPrize = prize;
-  tearDone = false;
-
-  document.getElementById('tearHint').style.display = 'flex';
-  document.getElementById('prizeReveal').style.display = 'none';
-  document.getElementById('modalCloseBtn').style.visibility = 'hidden';
-
-  // Prize page content (hidden until torn)
-  const tierClass = 'tier-' + prize.tier.toLowerCase();
-  document.getElementById('modalPrizePage').innerHTML = `
+function buildPrizeHTML(prize) {
+  return `
     <div style="text-align:center; padding:1.5rem; color:#333;">
       <div style="
         width:52px; height:52px; border-radius:8px;
@@ -746,46 +805,113 @@ function openDraw(prize) {
       <div style="font-size:0.75rem; color:#4a4560;">${prize.desc}</div>
     </div>
   `;
+}
 
-  // Destroy any previous instance
-  try { $('#drawBook').turn('destroy'); } catch(e) {}
-  bookInitialized = false;
+function openDraw(prize) {
+  pendingPrize = prize;
+  tearDone = false;
 
-  // Init turn.js BEFORE showing modal.
-  // The modal uses visibility:hidden (not display:none), so the book
-  // always has a valid layout and turn.js can measure it correctly.
-  const bookW = Math.min(420, window.innerWidth * 0.85 - 64);
-  const bookH = Math.round(bookW * (240 / 420));
+  document.getElementById('tearHint').style.display = 'flex';
+  document.getElementById('tearHintText').textContent = '從左上角拖動以撕開籤紙';
+  document.getElementById('prizeReveal').style.display = 'none';
+  document.getElementById('modalCloseBtn').style.visibility = 'hidden';
 
-  $('#drawBook').turn({
-    width:  bookW,
-    height: bookH,
-    autoCenter: true,
-    display: 'single',
-    gradients: true,
-    acceleration: true,
-    corners: 'tl',
-    peel: 'tl',
-    elevation: 50,
-    pages: 2,
-    page: 2,
-    when: {
-      end: function() {
-        try { document.getElementById('tearSound').play(); } catch(e) {}
-      },
-      first: function() {
-        $('#drawBook').turn('disable', true);
-        if (!tearDone) {
-          tearDone = true;
-          onTearComplete(prize);
+  if ($.fn.turn) {
+    document.getElementById('bookSection').style.display = '';
+    document.getElementById('ticketSection').style.display = 'none';
+
+    const bookW = Math.min(420, window.innerWidth * 0.85 - 64);
+    const bookH = Math.round(bookW * (240 / 420));
+
+    // ── 每次完全重建 DOM，徹底避免 turn.js 殘留狀態 ──
+    // 策略：獎品背景放在 turn.js 後方 (#prizeBg)，不受 turn.js 管理
+    //       turn.js 只管封面 (page 2) 的撕開動畫
+    //       page 1 是空透明頁，撕開後讓 #prizeBg 透出 → 解決透明問題
+    const bookWrap = document.getElementById('bookWrap');
+
+    bookWrap.innerHTML =
+      '<div id="bookContainer" style="' +
+        'position:relative;display:inline-block;' +
+        'width:' + bookW + 'px;height:' + bookH + 'px;' +
+        'border-radius:6px;border:2px solid #a49977;' +
+        'box-shadow:4px 4px 20px rgba(0,0,0,0.6);' +
+        'overflow:visible;' +
+      '">' +
+        // z-index 0：獎品背景層（保底：若 turn.js page 1 透明，此層直接透出）
+        '<div id="prizeBg" style="' +
+          'position:absolute;inset:0;z-index:0;border-radius:4px;overflow:hidden;' +
+          'background:linear-gradient(135deg,#f5f0e8 0%,#e8dfc8 100%);' +
+          'display:flex;align-items:center;justify-content:center;' +
+        '">' + buildPrizeHTML(prize) + '</div>' +
+        // z-index 1：turn.js（pages:2, page:2，撕一次到 page 1）
+        // #drawBook 不設背景：page 1 透明直接讓 #prizeBg 透出，不需要額外清除
+        '<div id="drawBook" style="position:relative;z-index:1;overflow:visible;">' +
+          // page 1：透明目標頁 → #prizeBg 直接顯示
+          '<div class="turn-page" style="' +
+            'width:' + bookW + 'px;height:' + bookH + 'px;background:transparent;' +
+          '"></div>' +
+          // page 2：封面（起始頁，card-back2）
+          '<div class="turn-page" style="' +
+            'width:' + bookW + 'px;height:' + bookH + 'px;' +
+            'background-image:url(\'./img/card-back2.png\');' +
+            'background-size:cover;background-position:center;' +
+          '"></div>' +
+        '</div>' +
+      '</div>';
+
+    document.getElementById('drawModal').classList.add('visible');
+
+    setTimeout(function() {
+      $('#drawBook').turn({
+        width:        bookW,
+        height:       bookH,
+        autoCenter:   true,
+        display:      'single',
+        gradients:    true,
+        acceleration: true,
+        corners:      'tl',
+        peel:         'tl',
+        elevation:    50,
+        pages:        2,
+        page:         2,
+        when: {
+          first: function() {
+            // 翻到 page 1（透明）→ #prizeBg 直接顯示
+            $('#drawBook').turn('disable', true);
+            if (!tearDone) {
+              tearDone = true;
+              onTearComplete(prize);
+            }
+          }
         }
-      }
-    }
-  });
-  bookInitialized = true;
+      });
+    }, 50);
 
-  // Show modal after turn.js is ready
-  document.getElementById('drawModal').classList.add('visible');
+  } else {
+    // ── CSS ticket mode: click to tear (fallback) ──
+    document.getElementById('bookSection').style.display = 'none';
+    document.getElementById('ticketSection').style.display = '';
+    document.getElementById('tearHintText').textContent = '點擊籤紙撕開，揭曉獎品';
+    document.getElementById('modalPrizePage2').innerHTML = buildPrizeHTML(prize);
+
+    const wrapper = document.getElementById('ticketWrapper');
+    wrapper.classList.remove('torn');
+    wrapper.style.pointerEvents = '';
+
+    document.getElementById('drawModal').classList.add('visible');
+  }
+}
+
+function tearTicket() {
+  if (tearDone) return;
+  const wrapper = document.getElementById('ticketWrapper');
+  wrapper.style.pointerEvents = 'none';
+  wrapper.classList.add('torn');
+  try { document.getElementById('tearSound').play(); } catch(e) {}
+  setTimeout(function() {
+    tearDone = true;
+    onTearComplete(pendingPrize);
+  }, 620);
 }
 
 function getTierStyle(tier) {
@@ -820,14 +946,13 @@ function onTearComplete(prize) {
 }
 
 function closeModal() {
-  if (!tearDone && bookInitialized) {
-    // User closing without tearing — do nothing (force them to tear or confirm)
-    // Actually allow close but don't mark as drawn
-  }
   document.getElementById('drawModal').classList.remove('visible');
-  try { $('#drawBook').turn('destroy'); } catch(e) {}
-  bookInitialized = false;
+  // destroy turn.js first (while #drawBook still exists)
+  try { if ($('#drawBook').length) $('#drawBook').turn('destroy'); } catch(e) {}
+  // then wipe entire bookWrap — completely clean slate for next open
+  document.getElementById('bookWrap').innerHTML = '';
   pendingPrize = null;
+  tearDone = false;
 }
 
 // Close on overlay click
